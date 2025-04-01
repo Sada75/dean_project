@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode, useEffect, useMemo, useCallback } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,6 +17,7 @@ import {
   Menu,
   X,
   FileText,
+  Bell,
   LucideIcon
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -34,6 +36,7 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Badge } from "@/components/ui/badge"
 
 // Dynamically import UpcomingEvents to reduce initial load time
 const UpcomingEvents = dynamic(() => import("@/components/upcoming-events").then(mod => mod.UpcomingEvents), {
@@ -50,6 +53,7 @@ interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
+  badge?: number;
 }
 
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
@@ -82,11 +86,11 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const getRoleIcon = useCallback(() => {
     switch (role) {
       case "student":
-        return <GraduationCap className="h-6 w-6" />
+        return <GraduationCap className="h-6 w-6 text-primary" />
       case "club":
-        return <Users className="h-6 w-6" />
+        return <Users className="h-6 w-6 text-primary" />
       case "admin":
-        return <Building2 className="h-6 w-6" />
+        return <Building2 className="h-6 w-6 text-primary" />
     }
   }, [role])
 
@@ -106,14 +110,14 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       case "student":
         return [
           { href: "/dashboard/student", label: "Overview", icon: Home },
-          { href: "/dashboard/student/events", label: "My Events", icon: Calendar },
+          { href: "/dashboard/student/events", label: "My Events", icon: Calendar, badge: 3 },
           { href: "/dashboard/student/points", label: "Activity Points", icon: Award },
           { href: "/dashboard/student/settings", label: "Settings", icon: Settings },
         ]
       case "club":
         return [
           { href: "/dashboard/club", label: "Overview", icon: Home },
-          { href: "/dashboard/club/events", label: "Manage Events", icon: Calendar },
+          { href: "/dashboard/club/events", label: "Manage Events", icon: Calendar, badge: 5 },
           { href: "/dashboard/club/create", label: "Create Event", icon: Award },
           { href: "/dashboard/club/settings", label: "Settings", icon: Settings },
         ]
@@ -122,7 +126,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         return [
           { href: "/dashboard/admin", label: "Overview", icon: Home },
           { href: "/dashboard/admin/students", label: "Students", icon: GraduationCap },
-          { href: "/dashboard/admin/events", label: "Events", icon: Calendar },
+          { href: "/dashboard/admin/events", label: "Events", icon: Calendar, badge: 8 },
           { href: "/dashboard/admin/clubs", label: "Clubs", icon: Users },
           { href: "/dashboard/admin/api", label: "API Docs", icon: FileText },
           { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
@@ -158,35 +162,61 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen dark">
         {/* Desktop Sidebar */}
-        <Sidebar className="hidden md:flex">
-          <SidebarHeader className="flex items-center gap-2 px-4 py-2">
-            {roleIcon}
-            <span className="text-lg font-bold">{roleName}</span>
+        <Sidebar className="hidden md:flex border-r border-border/40 bg-gradient-to-b from-background to-background/95">
+          <SidebarHeader className="flex flex-col items-center gap-2 px-4 py-6 border-b border-border/40">
+            <div className="flex items-center gap-2 mb-2">
+              <Image 
+                src="/rvce-logo-new.png" 
+                alt="RVCE Logo" 
+                width={36} 
+                height={36} 
+                className="rounded-md" 
+              />
+              <span className="text-lg md:text-xl font-bold font-heading">RVCE</span>
+            </div>
+            <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-primary/10">
+              {roleIcon}
+              <span className="text-sm md:text-base font-medium">{roleName}</span>
+            </div>
           </SidebarHeader>
-          <SidebarContent>
+          <SidebarContent className="px-2 py-4">
             <SidebarMenu>
               {navItems.map((item: NavItem) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
-                    <Link href={item.href}>
-                      <item.icon className="h-5 w-5" />
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={pathname === item.href}
+                    className={cn(
+                      "transition-all duration-200 group",
+                      pathname === item.href ? 
+                      "bg-primary/10 hover:bg-primary/20 text-primary font-medium" : 
+                      "hover:bg-muted/50"
+                    )}
+                  >
+                    <Link href={item.href} className="relative">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-transform group-hover:scale-110",
+                        pathname === item.href && "text-primary"
+                      )} />
                       <span>{item.label}</span>
+                      {item.badge && (
+                        <Badge 
+                          className="absolute right-0 top-0 ml-auto bg-primary hover:bg-primary text-xs"
+                          variant="secondary"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter>
+          <SidebarFooter className="border-t border-border/40">
             <SidebarMenu>
-              <div className="flex items-center justify-between px-4 py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Theme</span>
-                </div>
-                <ThemeToggle />
-              </div>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild className="hover:bg-destructive/10 hover:text-destructive transition-colors">
                   <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
                     <LogOut className="h-5 w-5" />
                     <span>Logout</span>
@@ -200,7 +230,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         {/* Main Content */}
         <div className="flex flex-1 flex-col">
           {/* Mobile Header */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:hidden">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:hidden">
             <Button
               variant="ghost"
               size="icon"
@@ -210,18 +240,29 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
             <div className="flex items-center gap-2">
-              {roleIcon}
-              <span className="font-semibold">{roleName}</span>
+              <Image 
+                src="/rvce-logo-new.png" 
+                alt="RVCE Logo" 
+                width={28} 
+                height={28} 
+                className="rounded-md" 
+              />
+              <span className="font-semibold font-heading text-base md:text-lg">{roleName}</span>
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <ThemeToggle />
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                  3
+                </span>
+              </Button>
               <SidebarTrigger className="md:hidden" />
             </div>
           </header>
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="fixed inset-0 top-16 z-20 bg-background md:hidden">
+            <div className="fixed inset-0 top-16 z-20 bg-background/95 backdrop-blur-sm md:hidden overflow-y-auto">
               <nav className="flex flex-col gap-1 p-4">
                 {navItems.map((item: NavItem) => (
                   <Link
@@ -229,16 +270,29 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
-                      pathname === item.href ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                      "flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium relative",
+                      pathname === item.href 
+                        ? "bg-primary/10 text-primary" 
+                        : "hover:bg-muted/50",
                     )}
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className={cn(
+                      "h-5 w-5",
+                      pathname === item.href && "text-primary"
+                    )} />
                     {item.label}
+                    {item.badge && (
+                      <Badge 
+                        className="ml-auto bg-primary hover:bg-primary text-xs"
+                        variant="secondary"
+                      >
+                        {item.badge}
+                      </Badge>
+                    )}
                   </Link>
                 ))}
                 <Button
-                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-muted mt-4"
+                  className="flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 mt-4"
                   variant="ghost"
                   onClick={handleLogout}
                 >

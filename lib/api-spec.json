@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Dean Portal API",
-    "description": "API collection for the Dean Portal system",
+    "name": "College Points Portal API",
+    "description": "API collection for the College Points Portal system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -25,7 +25,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"dean@example.com\",\n    \"password\": \"your_password\"\n}"
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"your_password\"\n}"
             }
           }
         },
@@ -49,66 +49,10 @@
       ]
     },
     {
-      "name": "Students",
+      "name": "Branches",
       "item": [
         {
-          "name": "Get All Students",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/students",
-              "host": ["{{base_url}}"],
-              "path": ["api", "students"]
-            }
-          }
-        },
-        {
-          "name": "Get Student Details",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/students/:id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "students", ":id"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Courses",
-      "item": [
-        {
-          "name": "Get All Courses",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/courses",
-              "host": ["{{base_url}}"],
-              "path": ["api", "courses"]
-            }
-          }
-        },
-        {
-          "name": "Create Course",
+          "name": "Create Branch",
           "request": {
             "method": "POST",
             "header": [
@@ -122,23 +66,18 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/courses",
+              "raw": "{{base_url}}/api/admin/branches",
               "host": ["{{base_url}}"],
-              "path": ["api", "courses"]
+              "path": ["api", "admin", "branches"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Computer Science 101\",\n    \"code\": \"CS101\",\n    \"credits\": 3,\n    \"description\": \"Introduction to Computer Science\"\n}"
+              "raw": "{\n    \"name\": \"Computer Science and Engineering\",\n    \"code\": \"CSE\",\n    \"hod\": \"Dr. John Doe\"\n}"
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Faculty",
-      "item": [
+        },
         {
-          "name": "Get All Faculty",
+          "name": "Get All Branches",
           "request": {
             "method": "GET",
             "header": [
@@ -148,9 +87,693 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/faculty",
+              "raw": "{{base_url}}/api/branches",
               "host": ["{{base_url}}"],
-              "path": ["api", "faculty"]
+              "path": ["api", "branches"]
+            }
+          }
+        },
+        {
+          "name": "Get Branch By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/branches/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "branches", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Branch",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/branches/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "branches", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Computer Science and Engineering\",\n    \"code\": \"CSE\",\n    \"hod\": \"Dr. Jane Smith\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Counsellor to Branch",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/branches/:id/counsellors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "branches", ":id", "counsellors"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"counsellor_id\": \"counsellor_id_here\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Students)",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"student@example.com\",\n    \"name\": \"John Doe\",\n    \"password\": \"password123\",\n    \"usn\": \"1MS21CS001\",\n    \"branch\": \"branch_id_here\",\n    \"councellor\": \"councellor_id_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Get User Activity Points",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/:id/activity-points",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", ":id", "activity-points"]
+            }
+          }
+        },
+        {
+          "name": "Add User to Club",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/:id/clubs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", ":id", "clubs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"club_id\": \"club_id_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update User Activity Points",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/:id/activity-points",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", ":id", "activity-points"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"points\": 10,\n    \"reason\": \"Participation in Technical Workshop\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Counsellors",
+      "item": [
+        {
+          "name": "Create Counsellor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/counsellors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "counsellors"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"counsellor@example.com\",\n    \"password\": \"password123\",\n    \"name\": \"Dr. John Doe\",\n    \"branch\": \"branch_id_here\",\n    \"is_club_counsellor\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Counsellors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/counsellors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "counsellors"]
+            }
+          }
+        },
+        {
+          "name": "Get Counsellor By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/counsellors/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "counsellors", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Counsellor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/counsellors/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "counsellors", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Dr. Jane Smith\",\n    \"is_club_counsellor\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clubs",
+      "item": [
+        {
+          "name": "Create Club",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/clubs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "clubs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Technical Club\",\n    \"club_type\": \"technical\",\n    \"pocs\": [\"user_id_1\", \"user_id_2\"],\n    \"faculty_in_charge\": \"counsellor_id_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Clubs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs"]
+            }
+          }
+        },
+        {
+          "name": "Get Club by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Get Club by Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs?type=technical",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "technical"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Club",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/clubs/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "clubs", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Technical Club Updated\",\n    \"club_type\": \"technical\",\n    \"faculty_in_charge\": \"new_counsellor_id_here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add POC to Club",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/clubs/:id/pocs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "clubs", ":id", "pocs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": \"user_id_here\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/club/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "club", "events"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Technical Workshop\",\n    \"status\": \"upcoming\",\n    \"date\": \"2024-04-01T14:00:00Z\",\n    \"club\": \"club_id_here\",\n    \"activity_point\": 10,\n    \"form_link\": \"https://forms.google.com/...\",\n    \"deadline\": \"2024-03-31T23:59:59Z\",\n    \"location\": \"Room 101\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "Get Events by Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events?status=upcoming",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "upcoming"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Events for Club",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/:id/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", ":id", "events"]
+            }
+          }
+        },
+        {
+          "name": "Get Event Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/club/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "club", "events", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Technical Workshop Updated\",\n    \"date\": \"2024-04-02T15:00:00Z\",\n    \"activity_point\": 15,\n    \"location\": \"Room 102\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Upload Excel for Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/club/events/:id/excel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "club", "events", ":id", "excel"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"excel_url\": \"https://storage.googleapis.com/...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/events/:id/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "events", ":id", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Register for Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/student/events/:id/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "student", "events", ":id", "register"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/student/events/:id/unregister",
+              "host": ["{{base_url}}"],
+              "path": ["api", "student", "events", ":id", "unregister"]
+            }
+          }
+        },
+        {
+          "name": "Process Excel Sheet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/process-excel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "process-excel"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"excel_url\": \"https://storage.googleapis.com/...\",\n    \"event_id\": \"event_id_here\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/super-admin/admins",
+              "host": ["{{base_url}}"],
+              "path": ["api", "super-admin", "admins"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password123\",\n    \"name\": \"Admin User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "statistics"]
             }
           }
         }

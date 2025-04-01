@@ -1,129 +1,162 @@
 "use client"
 
-import { useEffect, useRef, useMemo } from "react"
-import { cn } from "@/lib/utils"
-import { useTheme } from "next-themes"
+import { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 
-interface AnimatedGradientBackgroundProps {
-  className?: string
-}
-
-export function AnimatedGradientBackground({ className }: AnimatedGradientBackgroundProps) {
+export function AnimatedGradientBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { resolvedTheme } = useTheme()
-  const lastRenderTimeRef = useRef<number>(0)
-  const FPS = 30 // Limit animation to 30 FPS for better performance
-
-  // Memoize theme colors to avoid recalculations
-  const themeColors = useMemo(() => {
-    const isDark = resolvedTheme === "dark"
-    return {
-      isDark,
-      baseColors: isDark 
-        ? ["rgba(30, 30, 30, 1)", "rgba(15, 15, 15, 1)", "rgba(0, 0, 0, 1)"]
-        : ["rgba(255, 255, 255, 1)", "rgba(240, 240, 245, 1)", "rgba(230, 230, 240, 1)"],
-      highlightColors: isDark
-        ? ["rgba(50, 50, 50, 0.3)", "rgba(40, 40, 40, 0.1)", "rgba(0, 0, 0, 0)"]
-        : ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.2)", "rgba(240, 240, 245, 0)"]
-    }
-  }, [resolvedTheme])
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d", { alpha: false }) // Optimize by disabling alpha
+    const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas dimensions only once
-    const setCanvasDimensions = () => {
-      const dpr = window.devicePixelRatio || 1
-      // Use CSS pixels for dimensions and scale internally
-      const rect = canvas.getBoundingClientRect()
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      ctx.scale(dpr, dpr)
+    // Store canvas dimensions to use in the Particle class
+    let canvasWidth = window.innerWidth
+    let canvasHeight = window.innerHeight
+
+    // Set canvas size
+    const resizeCanvas = () => {
+      if (!canvas) return
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+      canvasWidth = window.innerWidth
+      canvasHeight = window.innerHeight
     }
 
-    // Handle resize with throttling
-    let resizeTimeout: ReturnType<typeof setTimeout>
-    const handleResize = () => {
-      clearTimeout(resizeTimeout)
-      resizeTimeout = setTimeout(setCanvasDimensions, 100)
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
+
+    // Particle class
+    class Particle {
+      x: number
+      y: number
+      size: number
+      speedX: number
+      speedY: number
+      opacity: number
+      color: string
+
+      constructor() {
+        this.x = Math.random() * canvasWidth
+        this.y = Math.random() * canvasHeight
+        this.size = Math.random() * 4 + 0.5
+        this.speedX = Math.random() * 1 - 0.5
+        this.speedY = Math.random() * 1 - 0.5
+        this.opacity = Math.random() * 0.5 + 0.1
+        
+        // Create various shades of blue, purple and teal for particles
+        const colors = [
+          'rgba(66, 135, 245, 0.8)',  // blue
+          'rgba(138, 43, 226, 0.6)',  // purple
+          'rgba(0, 230, 218, 0.7)',   // teal
+          'rgba(255, 255, 255, 0.5)', // white
+        ]
+        this.color = colors[Math.floor(Math.random() * colors.length)]
+      }
+
+      update() {
+        this.x += this.speedX
+        this.y += this.speedY
+
+        // Wrap around edges
+        if (this.x < 0) this.x = canvasWidth
+        if (this.x > canvasWidth) this.x = 0
+        if (this.y < 0) this.y = canvasHeight
+        if (this.y > canvasHeight) this.y = 0
+      }
+
+      draw() {
+        if (!ctx) return
+        
+        ctx.beginPath()
+        const gradient = ctx.createRadialGradient(
+          this.x, this.y, 0,
+          this.x, this.y, this.size
+        )
+        gradient.addColorStop(0, this.color)
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        ctx.fillStyle = gradient
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+        ctx.fill()
+      }
     }
 
-    window.addEventListener("resize", handleResize)
-    setCanvasDimensions()
+    // Create particles
+    const particleCount = Math.min(window.innerWidth * 0.1, 150) // Responsive count
+    const particles: Particle[] = []
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle())
+    }
 
-    // Animation function with FPS limiting
-    const animate = (timestamp: number) => {
-      // Throttle to target FPS
-      if (timestamp - lastRenderTimeRef.current < 1000 / FPS) {
-        requestAnimationFrame(animate)
-        return
+    // Animation loop
+    let animationFrameId: number
+    const animate = () => {
+      if (!ctx || !canvas) return
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      
+      // Draw particles
+      particles.forEach(particle => {
+        particle.update()
+        particle.draw()
+      })
+      
+      // Draw connections between nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x
+          const dy = particles[i].y - particles[j].y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (distance < 100) {
+            ctx.beginPath()
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 100)})`
+            ctx.lineWidth = 0.5
+            ctx.moveTo(particles[i].x, particles[i].y)
+            ctx.lineTo(particles[j].x, particles[j].y)
+            ctx.stroke()
+          }
+        }
       }
       
-      lastRenderTimeRef.current = timestamp
-      
-      // Get canvas dimensions in CSS pixels
-      const rect = canvas.getBoundingClientRect()
-      const width = rect.width
-      const height = rect.height
-
-      // Clear canvas
-      ctx.clearRect(0, 0, width, height)
-
-      // Create a radial gradient - simplified for performance
-      const gradient = ctx.createRadialGradient(
-        width / 2,
-        height / 2,
-        0,
-        width / 2,
-        height / 2,
-        Math.max(width, height) / 1.5, // Reduced size for better performance
-      )
-
-      // Apply base gradient colors
-      themeColors.baseColors.forEach((color, index) => {
-        gradient.addColorStop(index/2, color)
-      })
-
-      // Fill with base gradient
-      ctx.fillStyle = gradient
-      ctx.fillRect(0, 0, width, height)
-
-      // Add subtle highlight with reduced complexity
-      const time = timestamp * 0.0005 // Slower animation
-      const x1 = Math.sin(time * 0.3) * width * 0.3 + width * 0.5
-      const y1 = Math.cos(time * 0.2) * height * 0.3 + height * 0.5
-
-      const highlight = ctx.createRadialGradient(
-        x1, y1, 0, 
-        x1, y1, Math.min(width, height) * 0.3
-      )
-
-      themeColors.highlightColors.forEach((color, index) => {
-        highlight.addColorStop(index/2, color)
-      })
-
-      // Add highlight - with reduced opacity for better performance
-      ctx.globalAlpha = 0.8
-      ctx.fillStyle = highlight
-      ctx.fillRect(0, 0, width, height)
-      ctx.globalAlpha = 1.0
-
-      requestAnimationFrame(animate)
+      animationFrameId = requestAnimationFrame(animate)
     }
+    
+    animate()
 
-    const animationId = requestAnimationFrame(animate)
-
+    // Cleanup
     return () => {
-      window.removeEventListener("resize", handleResize)
-      clearTimeout(resizeTimeout)
-      cancelAnimationFrame(animationId)
+      window.removeEventListener('resize', resizeCanvas)
+      cancelAnimationFrame(animationFrameId)
     }
-  }, [themeColors])
+  }, [])
 
-  return <canvas ref={canvasRef} className={cn("fixed inset-0 -z-10 h-full w-full", className)} />
+  return (
+    <>
+      <canvas 
+        ref={canvasRef} 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ mixBlendMode: 'screen' }}
+      />
+      <motion.div 
+        className="fixed inset-0 z-0 bg-gradient-to-br from-black via-blue-950 to-black opacity-95"
+        animate={{
+          background: [
+            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
+            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(20,15,60,1) 50%, rgba(0,0,0,1) 100%)',
+            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
+          ],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
+    </>
+  )
 }
 

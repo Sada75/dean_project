@@ -4,17 +4,19 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { GraduationCap, Users, Building2, ArrowLeft, Loader2 } from "lucide-react"
+import { GraduationCap, Users, Building2, ArrowLeft, Loader2, LockKeyhole } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/components/ui/use-toast"
 import { AnimatedGradientBackground } from "@/components/animated-gradient-background"
 import { IntroAnimation } from "@/components/intro-animation"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -101,6 +103,19 @@ export default function LoginPage() {
     }
   }
 
+  const getRoleColor = () => {
+    switch (loginRole) {
+      case "student":
+        return "from-blue-500 to-blue-600";
+      case "club":
+        return "from-purple-500 to-purple-600";
+      case "admin":
+        return "from-amber-500 to-amber-600";
+      default:
+        return "from-primary to-primary/80";
+    }
+  }
+
   const getRoleTitle = () => {
     switch (loginRole) {
       case "student":
@@ -142,10 +157,24 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden dark">
       <AnimatedGradientBackground />
 
-      <Link href="/" className="absolute left-4 top-4 flex items-center text-sm text-white/80 hover:text-white z-10">
+      <Link href="/" className="absolute left-4 top-4 flex items-center text-sm text-white/80 hover:text-white z-10 transition-colors">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Home
       </Link>
+      
+      <div className="absolute top-4 right-4 flex items-center z-10">
+        <Image 
+          src="/rvce-logo-new.png" 
+          alt="RVCE Logo" 
+          width={40} 
+          height={40}
+          className="rounded-md"
+        />
+        <div className="ml-2 flex flex-col">
+          <span className="text-sm md:text-base font-bold text-white/90">R.V. College of Engineering</span>
+          <span className="text-xs md:text-sm text-white/60">Activity Points Portal</span>
+        </div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -153,18 +182,19 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md mx-auto z-10"
       >
-        <Card className="backdrop-blur-sm bg-black/40 border-white/10 shadow-xl">
-          <CardHeader className="text-center">
+        <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+          <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
+          <CardHeader className="text-center pt-8">
             <motion.div
-              className="mx-auto rounded-full bg-primary/10 p-4 mb-4"
+              className={cn("mx-auto rounded-full p-5 mb-4 bg-primary/10 backdrop-blur-sm", loginRole === "student" ? "bg-blue-500/10" : loginRole === "club" ? "bg-purple-500/10" : "bg-amber-500/10")}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
             >
               {getRoleIcon()}
             </motion.div>
-            <CardTitle className="text-2xl">{getRoleTitle()}</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardTitle className="text-2xl md:text-3xl font-heading">{getRoleTitle()}</CardTitle>
+            <CardDescription className="text-foreground/70 mt-1 text-base">Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -172,40 +202,52 @@ export default function LoginPage() {
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="p-3 text-sm rounded-md bg-destructive/10 text-destructive"
+                  className="p-3 text-sm rounded-md bg-destructive/15 text-destructive border border-destructive/20"
                 >
                   {error}
                 </motion.div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-black/50 backdrop-blur-sm border-white/10"
-                />
+                <Label htmlFor="email" className="text-sm md:text-base font-medium text-foreground/80">Email Address</Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg className="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-black/50 backdrop-blur-sm border-white/10"
-                />
+                <Label htmlFor="password" className="text-sm md:text-base font-medium text-foreground/80">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <LockKeyhole className="w-4 h-4 text-primary/70" />
+                  </div>
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-2">
+            <CardFooter className="flex flex-col space-y-3 pb-6">
               <Button
                 type="submit"
-                className="w-full"
+                className={cn("w-full font-medium bg-gradient-to-r shadow-sm transition-all", getRoleColor())}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -214,18 +256,22 @@ export default function LoginPage() {
                     Logging in...
                   </>
                 ) : (
-                  "Login"
+                  "Sign In"
                 )}
               </Button>
 
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mt-2 text-sm bg-black/50 backdrop-blur-sm border-white/10"
+                className="w-full mt-2 text-sm bg-black/20 backdrop-blur-sm border-white/10 hover:bg-black/30 transition-colors"
                 onClick={fillDemoCredentials}
               >
                 Use Demo Credentials
               </Button>
+              
+              <p className="text-xs md:text-sm text-center text-foreground/50 mt-4">
+                By signing in, you agree to our terms of service and privacy policy.
+              </p>
             </CardFooter>
           </form>
         </Card>

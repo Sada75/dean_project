@@ -136,75 +136,18 @@ export default function StudentPointsPage() {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-lg font-medium">Category Requirements</h3>
+              <h3 className="text-lg font-medium">Total Points Requirement</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
                   <div>
-                    <h4 className="font-medium">Technical Activities</h4>
-                    <p className="text-sm text-muted-foreground">Minimum 30 points required</p>
+                    <h4 className="font-medium">Total Activity Points</h4>
+                    <p className="text-sm text-muted-foreground">Minimum 100 points required</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">{studentData.pointsBreakdown.technical} / 30</div>
+                    <div className="font-medium">{studentData.totalPoints} / 100</div>
                     <p className="text-sm text-muted-foreground">
-                      {studentData.pointsBreakdown.technical >= 30 ? "Requirement met" : "Requirement not met"}
+                      {studentData.totalPoints >= 100 ? "Requirement met" : "Requirement not met"}
                     </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-                  <div>
-                    <h4 className="font-medium">Cultural Activities</h4>
-                    <p className="text-sm text-muted-foreground">Minimum 20 points required</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{studentData.pointsBreakdown.cultural} / 20</div>
-                    <p className="text-sm text-muted-foreground">
-                      {studentData.pointsBreakdown.cultural >= 20 ? "Requirement met" : "Requirement not met"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-                  <div>
-                    <h4 className="font-medium">Sports Activities</h4>
-                    <p className="text-sm text-muted-foreground">Minimum 20 points required</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{studentData.pointsBreakdown.sports} / 20</div>
-                    <p className="text-sm text-muted-foreground">
-                      {studentData.pointsBreakdown.sports >= 20 ? "Requirement met" : "Requirement not met"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-                  <div>
-                    <h4 className="font-medium">Social Service</h4>
-                    <p className="text-sm text-muted-foreground">Minimum 20 points required</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{studentData.pointsBreakdown.social} / 20</div>
-                    <p className="text-sm text-muted-foreground">
-                      {studentData.pointsBreakdown.social >= 20 ? "Requirement met" : "Requirement not met"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-                  <div>
-                    <h4 className="font-medium">Additional Points</h4>
-                    <p className="text-sm text-muted-foreground">Remaining points from any category</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">
-                      {studentData.totalPoints -
-                        Math.min(studentData.pointsBreakdown.technical, 30) -
-                        Math.min(studentData.pointsBreakdown.cultural, 20) -
-                        Math.min(studentData.pointsBreakdown.sports, 20) -
-                        Math.min(studentData.pointsBreakdown.social, 20)}{" "}
-                      / 10
-                    </div>
-                    <p className="text-sm text-muted-foreground">Flexible requirement</p>
                   </div>
                 </div>
               </div>
