@@ -48,8 +48,8 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-heading: 'Poppins', ui-sans-serif, system-ui, sans-serif;
 
-    /* Increase base font size */
-    font-size: 16.5px;
+    /* Reset to normal font size */
+    font-size: 16px;
 
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -187,13 +187,13 @@
     @apply font-heading font-bold;
   }
   p, span, li, a {
-    @apply text-[1.02rem] leading-relaxed;
+    @apply text-[0.95rem] leading-relaxed;
   }
 }
 
-/* Enhanced text size classes */
+/* Reset enhanced text size classes to normal */
 .text-base {
-  @apply text-[1.05rem];
+  @apply text-[1rem];
 }
 
 .text-lg {

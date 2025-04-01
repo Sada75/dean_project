@@ -40,8 +40,8 @@ export default function Home() {
               className="rounded-md"
             />
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold font-heading">R.V. College of Engineering</span>
-              <span className="text-xs md:text-sm text-gray-400">Autonomous Institution affiliated to VTU, Belgaum</span>
+              <span className="text-xl font-bold font-heading">R.V. College of Engineering</span>
+              <span className="text-xs text-gray-400">Autonomous Institution affiliated to VTU, Belgaum</span>
             </div>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <div className="space-y-2">
-                <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl md:text-7xl text-white font-heading">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-white font-heading">
                   Activity Points Management Portal
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-300 text-lg md:text-2xl mt-4">
+                <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl mt-4">
                   Track, verify, and manage student activity points with ease.
                 </p>
               </div>
@@ -75,11 +75,11 @@ export default function Home() {
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <School className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-2xl font-heading">Student Portal</CardTitle>
-                  <CardDescription className="text-gray-300 text-base">Access your activity records</CardDescription>
+                  <CardTitle className="text-xl font-heading">Student Portal</CardTitle>
+                  <CardDescription className="text-gray-300">Access your activity records</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-base text-gray-400 space-y-2">
+                  <ul className="text-sm text-gray-400 space-y-2">
                     <li className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-primary/70" />
                       <span>Track points progress</span>
@@ -101,11 +101,11 @@ export default function Home() {
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <Users className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-2xl font-heading">Club Portal</CardTitle>
-                  <CardDescription className="text-gray-300 text-base">Manage events and participants</CardDescription>
+                  <CardTitle className="text-xl font-heading">Club Portal</CardTitle>
+                  <CardDescription className="text-gray-300">Manage events and participants</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-base text-gray-400 space-y-2">
+                  <ul className="text-sm text-gray-400 space-y-2">
                     <li className="flex items-center gap-2">
                       <CalendarDays className="h-4 w-4 text-primary/70" />
                       <span>Create event proposals</span>
@@ -127,11 +127,11 @@ export default function Home() {
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <Building2 className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-2xl font-heading">Admin Portal</CardTitle>
-                  <CardDescription className="text-gray-300 text-base">Manage the entire system</CardDescription>
+                  <CardTitle className="text-xl font-heading">Admin Portal</CardTitle>
+                  <CardDescription className="text-gray-300">Manage the entire system</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-base text-gray-400 space-y-2">
+                  <ul className="text-sm text-gray-400 space-y-2">
                     <li className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-primary/70" />
                       <span>Verify event submissions</span>
@@ -154,7 +154,7 @@ export default function Home() {
       </main>
       <footer className="border-t border-white/10 py-6 bg-black/50 backdrop-blur relative z-10">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
-          <p className="text-base text-gray-400">
+          <p className="text-sm text-gray-400">
             &copy; {new Date().getFullYear()} R.V. College of Engineering. All rights reserved.
           </p>
         </div>

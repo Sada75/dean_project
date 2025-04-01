@@ -172,11 +172,11 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
                 height={36} 
                 className="rounded-md" 
               />
-              <span className="text-lg md:text-xl font-bold font-heading">RVCE</span>
+              <span className="text-lg font-bold font-heading">RVCE</span>
             </div>
             <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-primary/10">
               {roleIcon}
-              <span className="text-sm md:text-base font-medium">{roleName}</span>
+              <span className="text-sm font-medium">{roleName}</span>
             </div>
           </SidebarHeader>
           <SidebarContent className="px-2 py-4">
@@ -247,7 +247,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
                 height={28} 
                 className="rounded-md" 
               />
-              <span className="font-semibold font-heading text-base md:text-lg">{roleName}</span>
+              <span className="font-semibold font-heading">{roleName}</span>
             </div>
             <div className="ml-auto flex items-center gap-2">
               <Button variant="ghost" size="icon" className="relative">

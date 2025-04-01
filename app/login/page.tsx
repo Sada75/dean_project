@@ -171,8 +171,8 @@ export default function LoginPage() {
           className="rounded-md"
         />
         <div className="ml-2 flex flex-col">
-          <span className="text-sm md:text-base font-bold text-white/90">R.V. College of Engineering</span>
-          <span className="text-xs md:text-sm text-white/60">Activity Points Portal</span>
+          <span className="text-sm font-bold text-white/90">R.V. College of Engineering</span>
+          <span className="text-xs text-white/60">Activity Points Portal</span>
         </div>
       </div>
 
@@ -193,8 +193,8 @@ export default function LoginPage() {
             >
               {getRoleIcon()}
             </motion.div>
-            <CardTitle className="text-2xl md:text-3xl font-heading">{getRoleTitle()}</CardTitle>
-            <CardDescription className="text-foreground/70 mt-1 text-base">Enter your credentials to access your account</CardDescription>
+            <CardTitle className="text-2xl font-heading">{getRoleTitle()}</CardTitle>
+            <CardDescription className="text-foreground/70 mt-1">Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -208,7 +208,7 @@ export default function LoginPage() {
                 </motion.div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm md:text-base font-medium text-foreground/80">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium text-foreground/80">Email Address</Label>
                 <div className="relative">
                   <Input
                     id="email"
@@ -227,7 +227,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm md:text-base font-medium text-foreground/80">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-foreground/80">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -269,7 +269,7 @@ export default function LoginPage() {
                 Use Demo Credentials
               </Button>
               
-              <p className="text-xs md:text-sm text-center text-foreground/50 mt-4">
+              <p className="text-xs text-center text-foreground/50 mt-4">
                 By signing in, you agree to our terms of service and privacy policy.
               </p>
             </CardFooter>
