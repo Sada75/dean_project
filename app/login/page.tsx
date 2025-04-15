@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { GraduationCap, Users, Building2, ArrowLeft, Loader2, LockKeyhole } from "lucide-react"
+import { GraduationCap, Users, Building2, ArrowLeft, Loader2, LockKeyhole, HeartHandshake } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/components/ui/use-toast"
@@ -30,6 +30,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showIntro, setShowIntro] = useState(true)
+  const [adminType, setAdminType] = useState<string | null>(null)
 
   useEffect(() => {
     const roleParam = searchParams.get("role")
@@ -62,14 +63,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const result = await login(email, password, loginRole)
+      // If admin login, use the adminType
+      const actualRole = loginRole === "admin" && adminType ? adminType : loginRole
+      
+      const result = await login(email, password, actualRole)
 
       if (result.success) {
         toast({
           title: "Login successful",
           description: `Welcome back!`,
         })
-        router.push(`/dashboard/${loginRole}`)
+        router.push(`/dashboard/${actualRole}`)
       } else {
         setError(result.message || "Invalid credentials")
         toast({
@@ -98,6 +102,8 @@ export default function LoginPage() {
         return <Users className="h-8 w-8 text-primary" />
       case "admin":
         return <Building2 className="h-8 w-8 text-primary" />
+      case "counsellor":
+        return <HeartHandshake className="h-8 w-8 text-primary" />
       default:
         return null
     }
@@ -111,6 +117,8 @@ export default function LoginPage() {
         return "from-purple-500 to-purple-600";
       case "admin":
         return "from-amber-500 to-amber-600";
+      case "counsellor":
+        return "from-green-500 to-green-600";
       default:
         return "from-primary to-primary/80";
     }
@@ -123,7 +131,9 @@ export default function LoginPage() {
       case "club":
         return "Club Login"
       case "admin":
-        return "Admin Login"
+        return adminType === "dean" ? "Dean Student Affairs Login" : "Admin Login"
+      case "counsellor":
+        return "Counsellor Login"
       default:
         return "Login"
     }
@@ -138,6 +148,8 @@ export default function LoginPage() {
         return { email: "ieee@rvce.edu.in", password: "password123" }
       case "admin":
         return { email: "dean@rvce.edu.in", password: "password123" }
+      case "counsellor":
+        return { email: "counsellor@rvce.edu.in", password: "password123" }
       default:
         return { email: "", password: "" }
     }
@@ -176,106 +188,219 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md mx-auto z-10"
-      >
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
-          <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
-          <CardHeader className="text-center pt-8">
-            <motion.div
-              className={cn("mx-auto rounded-full p-5 mb-4 bg-primary/10 backdrop-blur-sm", loginRole === "student" ? "bg-blue-500/10" : loginRole === "club" ? "bg-purple-500/10" : "bg-amber-500/10")}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-            >
-              {getRoleIcon()}
-            </motion.div>
-            <CardTitle className="text-2xl font-heading">{getRoleTitle()}</CardTitle>
-            <CardDescription className="text-foreground/70 mt-1">Enter your credentials to access your account</CardDescription>
-          </CardHeader>
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="p-3 text-sm rounded-md bg-destructive/15 text-destructive border border-destructive/20"
-                >
-                  {error}
-                </motion.div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground/80">Email Address</Label>
-                <div className="relative">
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg className="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground/80">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <LockKeyhole className="w-4 h-4 text-primary/70" />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-3 pb-6">
-              <Button
-                type="submit"
-                className={cn("w-full font-medium bg-gradient-to-r shadow-sm transition-all", getRoleColor())}
-                disabled={isLoading}
+      {!loginRole ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-auto z-10"
+        >
+          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-heading">Choose Login Type</CardTitle>
+              <CardDescription className="text-foreground/70">Select your role to continue</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 p-6">
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setLoginRole("student")}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-2 text-sm bg-black/20 backdrop-blur-sm border-white/10 hover:bg-black/30 transition-colors"
-                onClick={fillDemoCredentials}
-              >
-                Use Demo Credentials
+                <GraduationCap className="h-8 w-8 mb-2 text-blue-500" />
+                <span className="font-medium text-white/90">Student</span>
               </Button>
               
-              <p className="text-xs text-center text-foreground/50 mt-4">
-                By signing in, you agree to our terms of service and privacy policy.
-              </p>
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setLoginRole("club")}
+              >
+                <Users className="h-8 w-8 mb-2 text-purple-500" />
+                <span className="font-medium text-white/90">Club</span>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setLoginRole("admin")}
+              >
+                <Building2 className="h-8 w-8 mb-2 text-amber-500" />
+                <span className="font-medium text-white/90">Admin</span>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setLoginRole("counsellor")}
+              >
+                <HeartHandshake className="h-8 w-8 mb-2 text-green-500" />
+                <span className="font-medium text-white/90">Counsellor</span>
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : loginRole === "admin" && !adminType ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-auto z-10"
+        >
+          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+            <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
+            <CardHeader className="text-center pt-8">
+              <Building2 className="mx-auto h-12 w-12 text-amber-500 mb-4" />
+              <CardTitle className="text-2xl font-heading">Admin Login</CardTitle>
+              <CardDescription className="text-foreground/70">Select your admin role to continue</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 p-6">
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setAdminType("dean")}
+              >
+                <Building2 className="h-8 w-8 mb-2 text-amber-500" />
+                <span className="font-medium text-white/90">Dean Student Affairs</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                onClick={() => setLoginRole("counsellor")}
+              >
+                <HeartHandshake className="h-8 w-8 mb-2 text-green-500" />
+                <span className="font-medium text-white/90">Counsellor</span>
+              </Button>
+            </CardContent>
+            <CardFooter className="flex justify-center pb-6">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setLoginRole(null)}
+                className="text-sm text-white/60 hover:text-white"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to role selection
+              </Button>
             </CardFooter>
-          </form>
-        </Card>
-      </motion.div>
+          </Card>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-auto z-10"
+        >
+          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+            <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
+            <CardHeader className="text-center pt-8">
+              <motion.div
+                className={cn("mx-auto rounded-full p-5 mb-4 bg-primary/10 backdrop-blur-sm", 
+                  loginRole === "student" ? "bg-blue-500/10" : 
+                  loginRole === "club" ? "bg-purple-500/10" : 
+                  loginRole === "counsellor" ? "bg-green-500/10" :
+                  "bg-amber-500/10")}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+              >
+                {getRoleIcon()}
+              </motion.div>
+              <CardTitle className="text-2xl font-heading">{getRoleTitle()}</CardTitle>
+              <CardDescription className="text-foreground/70 mt-1">Enter your credentials to access your account</CardDescription>
+            </CardHeader>
+            <form onSubmit={handleLogin}>
+              <CardContent className="space-y-4">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="p-3 text-sm rounded-md bg-destructive/15 text-destructive border border-destructive/20"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground/80">Email Address</Label>
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                    />
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <svg className="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground/80">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                    />
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <LockKeyhole className="w-4 h-4 text-primary/70" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-3 pb-6">
+                <Button
+                  type="submit"
+                  className={cn("w-full font-medium bg-gradient-to-r shadow-sm transition-all", getRoleColor())}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Log In"
+                  )}
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={fillDemoCredentials} 
+                  className="text-sm text-white/60 hover:text-white"
+                >
+                  Use demo credentials
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setLoginRole(null)
+                    setAdminType(null)
+                  }}
+                  className="text-sm text-white/60 hover:text-white"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to role selection
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </motion.div>
+      )}
     </div>
   )
 }

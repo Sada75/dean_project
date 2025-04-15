@@ -18,7 +18,8 @@ import {
   X,
   FileText,
   Bell,
-  LucideIcon
+  LucideIcon,
+  HeartHandshake
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
@@ -46,7 +47,7 @@ const UpcomingEvents = dynamic(() => import("@/components/upcoming-events").then
 
 interface DashboardLayoutProps {
   children: ReactNode
-  role: "student" | "club" | "admin"
+  role: "student" | "club" | "admin" | "counsellor" | "dean"
 }
 
 interface NavItem {
@@ -91,6 +92,10 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         return <Users className="h-6 w-6 text-primary" />
       case "admin":
         return <Building2 className="h-6 w-6 text-primary" />
+      case "dean":
+        return <Building2 className="h-6 w-6 text-primary" />
+      case "counsellor":
+        return <HeartHandshake className="h-6 w-6 text-primary" />
     }
   }, [role])
 
@@ -102,6 +107,10 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         return "Club Dashboard"
       case "admin":
         return "Admin Dashboard"
+      case "dean":
+        return "Dean Student Affairs"
+      case "counsellor":
+        return "Counsellor Dashboard"
     }
   }, [role])
 
@@ -121,6 +130,14 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           { href: "/dashboard/club/create", label: "Create Event", icon: Award },
           { href: "/dashboard/club/settings", label: "Settings", icon: Settings },
         ]
+      case "counsellor":
+        return [
+          { href: "/dashboard/counsellor", label: "Overview", icon: Home },
+          { href: "/dashboard/counsellor", label: "Students", icon: GraduationCap },
+          { href: "/dashboard/counsellor", label: "Certificates", icon: Award },
+          { href: "/dashboard/counsellor", label: "Settings", icon: Settings },
+        ]
+      case "dean":
       case "admin":
       default:
         return [

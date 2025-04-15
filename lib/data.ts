@@ -1,5 +1,16 @@
 // Mock data for the entire application
 
+// Define certificate type
+type Certificate = {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  points: number;
+  category: "technical" | "cultural" | "sports" | "social";
+  verified: boolean;
+}
+
 // Student data
 export const students = [
   {
@@ -17,6 +28,7 @@ export const students = [
       sports: 10,
       social: 15,
     },
+    certificates: [] as Certificate[], // Add certificates array
   },
   {
     id: "1RV20EC045",
@@ -33,6 +45,7 @@ export const students = [
       sports: 5,
       social: 10,
     },
+    certificates: [] as Certificate[], // Add certificates array
   },
   {
     id: "1RV20ME032",
@@ -49,6 +62,7 @@ export const students = [
       sports: 20,
       social: 5,
     },
+    certificates: [] as Certificate[], // Add certificates array
   },
   {
     id: "1RV20CS078",
@@ -65,6 +79,7 @@ export const students = [
       sports: 10,
       social: 10,
     },
+    certificates: [] as Certificate[], // Add certificates array
   },
 ]
 
@@ -115,11 +130,18 @@ export const clubs = [
 // Admin data
 export const admins = [
   {
-    id: "ADM001",
-    name: "Dr. Rajesh Kumar",
+    id: "A001",
+    name: "Dr. Venkatesh N",
     email: "dean@rvce.edu.in",
     password: "password123",
-    role: "Dean - Student Affairs",
+    isDean: true,
+  },
+  {
+    id: "A002",
+    name: "Admin User",
+    email: "admin@rvce.edu.in",
+    password: "password123",
+    isDean: false,
   },
 ]
 
@@ -334,6 +356,14 @@ export function authenticateUser(email: string, password: string, role: string) 
   } else if (role === "admin") {
     const admin = admins.find((a) => a.email === email && a.password === password)
     if (admin) return { success: true, user: admin, role: "admin" }
+  } else if (role === "dean") {
+    // For dean student affairs
+    const dean = admins.find((a) => a.email === email && a.password === password && a.isDean)
+    if (dean) return { success: true, user: dean, role: "dean" }
+  } else if (role === "counsellor") {
+    // For counsellors
+    const counsellor = counsellors.find((c) => c.email === email && c.password === password)
+    if (counsellor) return { success: true, user: counsellor, role: "counsellor" }
   }
 
   return { success: false, message: "Invalid credentials" }
@@ -372,5 +402,79 @@ export function createEvent(eventData: any) {
 
   upcomingEvents.push(newEvent)
   return { success: true, event: newEvent }
+}
+
+// Add counsellors data 
+export const counsellors = [
+  {
+    id: "CS001",
+    name: "Dr. Anita Sharma",
+    email: "counsellor@rvce.edu.in",
+    password: "password123",
+    department: "Computer Science",
+    students: ["1RV20CS001", "1RV20CS078"], // IDs of students assigned to this counsellor
+  },
+  {
+    id: "EC001",
+    name: "Dr. Rajesh Kumar",
+    email: "rajesh.k@rvce.edu.in",
+    password: "password123",
+    department: "Electronics",
+    students: ["1RV20EC045"], // IDs of students assigned to this counsellor
+  },
+  {
+    id: "ME001",
+    name: "Dr. Sunita Patil",
+    email: "sunita.p@rvce.edu.in",
+    password: "password123",
+    department: "Mechanical",
+    students: ["1RV20ME032"], // IDs of students assigned to this counsellor
+  },
+]
+
+// Function to get counsellor by ID
+export function getCounsellorById(id: string) {
+  return counsellors.find((c) => c.id === id)
+}
+
+// Function to get students assigned to a counsellor
+export function getStudentsByCounsellor(counsellorId: string) {
+  const counsellor = counsellors.find((c) => c.id === counsellorId)
+  if (!counsellor) return []
+  
+  return students.filter((s) => counsellor.students.includes(s.id))
+}
+
+// Function to add certificate for a student
+export function addCertificateForStudent(studentId: string, certificateData: {
+  title: string,
+  issuer: string,
+  date: string,
+  points: number,
+  category: "technical" | "cultural" | "sports" | "social",
+  verified: boolean
+}) {
+  const student = students.find((s) => s.id === studentId)
+  if (!student) return { success: false, message: "Student not found" }
+  
+  // Create a new certificate
+  const certificate = {
+    id: `CERT${Math.floor(Math.random() * 10000)}`,
+    ...certificateData,
+  }
+  
+  // Add certificate to student (assuming student has certificates array)
+  if (!student.certificates) {
+    student.certificates = []
+  }
+  student.certificates.push(certificate)
+  
+  // Update points if verified
+  if (certificateData.verified) {
+    student.totalPoints += certificateData.points
+    student.pointsBreakdown[certificateData.category] += certificateData.points
+  }
+  
+  return { success: true, certificate }
 }
 
