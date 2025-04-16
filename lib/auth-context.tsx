@@ -13,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   role: string | null
-  login: (email: string, password: string, role: string) => Promise<{ success: boolean; message?: string }>
+  login: (email: string, password: string, role: string) => Promise<{ success: boolean; message?: string; dashboardPath?: string }>
   logout: () => void
   isLoading: boolean
 }
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Authenticate user
     const result = authenticateUser(email, password, role)
 
-    if (result.success) {
+    if (result.success && result.user && result.role) {
       setUser(result.user)
       setRole(result.role)
 
@@ -51,7 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(result.user))
       localStorage.setItem("role", result.role)
 
-      return { success: true }
+      // Route dean to admin dashboard but keep the role as dean for UI display
+      const dashboardPath = result.role === "dean" ? "admin" : result.role
+      
+      return { success: true, dashboardPath }
     }
 
     return { success: false, message: result.message || "Invalid credentials" }

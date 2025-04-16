@@ -73,7 +73,10 @@ export default function LoginPage() {
           title: "Login successful",
           description: `Welcome back!`,
         })
-        router.push(`/dashboard/${actualRole}`)
+        
+        // Use the dashboardPath if provided, otherwise use the role
+        const dashboardRoute = result.dashboardPath || actualRole
+        router.push(`/dashboard/${dashboardRoute}`)
       } else {
         setError(result.message || "Invalid credentials")
         toast({
@@ -203,37 +206,37 @@ export default function LoginPage() {
             <CardContent className="grid grid-cols-2 gap-4 p-6">
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setLoginRole("student")}
               >
-                <GraduationCap className="h-8 w-8 mb-2 text-blue-500" />
+                <GraduationCap className="h-8 w-8 mb-2 text-blue-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Student</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setLoginRole("club")}
               >
-                <Users className="h-8 w-8 mb-2 text-purple-500" />
+                <Users className="h-8 w-8 mb-2 text-purple-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Club</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setLoginRole("admin")}
               >
-                <Building2 className="h-8 w-8 mb-2 text-amber-500" />
+                <Building2 className="h-8 w-8 mb-2 text-amber-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Admin</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setLoginRole("counsellor")}
               >
-                <HeartHandshake className="h-8 w-8 mb-2 text-green-500" />
+                <HeartHandshake className="h-8 w-8 mb-2 text-green-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Counsellor</span>
               </Button>
             </CardContent>
@@ -256,18 +259,18 @@ export default function LoginPage() {
             <CardContent className="grid grid-cols-2 gap-4 p-6">
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setAdminType("dean")}
               >
-                <Building2 className="h-8 w-8 mb-2 text-amber-500" />
+                <Building2 className="h-8 w-8 mb-2 text-amber-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Dean Student Affairs</span>
               </Button>
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
                 onClick={() => setLoginRole("counsellor")}
               >
-                <HeartHandshake className="h-8 w-8 mb-2 text-green-500" />
+                <HeartHandshake className="h-8 w-8 mb-2 text-green-500 group-hover:scale-110 transition-transform" />
                 <span className="font-medium text-white/90">Counsellor</span>
               </Button>
             </CardContent>
@@ -276,9 +279,9 @@ export default function LoginPage() {
                 variant="ghost" 
                 size="sm"
                 onClick={() => setLoginRole(null)}
-                className="text-sm text-white/60 hover:text-white"
+                className="text-sm text-white/60 hover:text-white group"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                 Back to role selection
               </Button>
             </CardFooter>
@@ -360,7 +363,13 @@ export default function LoginPage() {
               <CardFooter className="flex flex-col space-y-3 pb-6">
                 <Button
                   type="submit"
-                  className={cn("w-full font-medium bg-gradient-to-r shadow-sm transition-all", getRoleColor())}
+                  className={cn(
+                    "w-full font-medium bg-gradient-to-r from-primary to-primary/80 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5",
+                    loginRole === "student" ? "from-blue-500 to-blue-600" : 
+                    loginRole === "club" ? "from-purple-500 to-purple-600" : 
+                    loginRole === "counsellor" ? "from-green-500 to-green-600" :
+                    "from-amber-500 to-amber-600"
+                  )}
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -378,7 +387,7 @@ export default function LoginPage() {
                   variant="ghost" 
                   size="sm" 
                   onClick={fillDemoCredentials} 
-                  className="text-sm text-white/60 hover:text-white"
+                  className="text-sm text-white/60 hover:text-white group"
                 >
                   Use demo credentials
                 </Button>
@@ -391,9 +400,9 @@ export default function LoginPage() {
                     setLoginRole(null)
                     setAdminType(null)
                   }}
-                  className="text-sm text-white/60 hover:text-white"
+                  className="text-sm text-white/60 hover:text-white group"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                   Back to role selection
                 </Button>
               </CardFooter>

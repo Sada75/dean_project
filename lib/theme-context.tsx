@@ -8,11 +8,15 @@ import { useTheme } from "next-themes"
 interface ThemeVisibilityContextType {
   showThemeToggle: boolean;
   isDashboard: boolean;
+  setVibrantMode: () => void;
+  setDarkMode: () => void;
 }
 
 const ThemeVisibilityContext = createContext<ThemeVisibilityContextType>({
   showThemeToggle: false,
-  isDashboard: false
+  isDashboard: false,
+  setVibrantMode: () => {},
+  setDarkMode: () => {}
 })
 
 export const useThemeVisibility = () => useContext(ThemeVisibilityContext)
@@ -23,7 +27,7 @@ export function ThemeVisibilityProvider({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const { setTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
   const [showThemeToggle, setShowThemeToggle] = useState(false)
   const [isDashboard, setIsDashboard] = useState(false)
   
@@ -39,8 +43,22 @@ export function ThemeVisibilityProvider({
     }
   }, [pathname, setTheme])
   
+  // Helper functions to set theme
+  const setVibrantMode = () => {
+    setTheme('vibrant')
+  }
+  
+  const setDarkMode = () => {
+    setTheme('dark')
+  }
+  
   return (
-    <ThemeVisibilityContext.Provider value={{ showThemeToggle, isDashboard }}>
+    <ThemeVisibilityContext.Provider value={{ 
+      showThemeToggle, 
+      isDashboard, 
+      setVibrantMode, 
+      setDarkMode
+    }}>
       {children}
     </ThemeVisibilityContext.Provider>
   )

@@ -2,13 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+.font-heading {
+  font-family: 'Poppins', sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .bg-gradient-shimmer {
+    @apply bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 bg-[length:200%_100%] animate-shimmer;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: 0% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 }
 
@@ -48,6 +71,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+  
   .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
@@ -82,6 +106,64 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+  
+  .vibrant {
+    --background: 225 30% 96%;
+    --foreground: 245 30% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 245 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 245 30% 15%;
+    --primary: 260 80% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 190 95% 65%;
+    --secondary-foreground: 210 40% 20%;
+    --muted: 260 20% 92%;
+    --muted-foreground: 245 20% 45%;
+    --accent: 330 90% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 15% 85%;
+    --input: 215 15% 85%;
+    --ring: 260 80% 60%;
+    --chart-1: 260 80% 60%;
+    --chart-2: 330 90% 65%;
+    --chart-3: 190 95% 65%;
+    --chart-4: 30 90% 65%;
+    --chart-5: 120 60% 55%;
+    --sidebar-background: 225 40% 24%;
+    --sidebar-foreground: 225 30% 96%;
+    --sidebar-primary: 260 80% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 40% 33%;
+    --sidebar-accent-foreground: 225 30% 96%;
+    --sidebar-border: 225 40% 33%;
+    --sidebar-ring: 260 80% 60%;
+  }
+}
+
+/* Card hover effects */
+.card-hover-effect {
+  @apply transition-all duration-200;
+}
+
+.card-hover-effect:hover {
+  @apply shadow-lg -translate-y-1;
+}
+
+/* Animation for notifications */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-notification {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @layer base {
@@ -89,7 +171,7 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-200;
   }
 }
 

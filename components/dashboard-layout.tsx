@@ -19,7 +19,8 @@ import {
   FileText,
   Bell,
   LucideIcon,
-  HeartHandshake
+  HeartHandshake,
+  Sparkles
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
@@ -38,6 +39,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
+import { motion } from "framer-motion"
 
 // Dynamically import UpcomingEvents to reduce initial load time
 const UpcomingEvents = dynamic(() => import("@/components/upcoming-events").then(mod => mod.UpcomingEvents), {
@@ -138,6 +140,14 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           { href: "/dashboard/counsellor", label: "Settings", icon: Settings },
         ]
       case "dean":
+        return [
+          { href: "/dashboard/admin", label: "Overview", icon: Home },
+          { href: "/dashboard/admin/students", label: "All Students", icon: GraduationCap },
+          { href: "/dashboard/admin/clubs", label: "All Clubs", icon: Users },
+          { href: "/dashboard/admin/events", label: "Events", icon: Calendar, badge: 8 },
+          { href: "/dashboard/admin/counsellors", label: "Counsellors", icon: HeartHandshake },
+          { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
+        ]
       case "admin":
       default:
         return [
@@ -230,7 +240,10 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
               ))}
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="border-t border-border/40">
+          <SidebarFooter className="border-t border-border/40 px-4 py-4 flex flex-col gap-3">
+            <div className="flex justify-center">
+              <ThemeToggle />
+            </div>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="hover:bg-destructive/10 hover:text-destructive transition-colors">
@@ -267,6 +280,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
               <span className="font-semibold font-heading">{roleName}</span>
             </div>
             <div className="ml-auto flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
@@ -321,7 +335,50 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           )}
 
           {/* Content Area */}
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <main className="flex-1 p-4 md:p-6 lg:p-8 transition-all duration-200">
+            {/* Theme Welcome Banner (shown on first visit) */}
+            {pathname === "/dashboard/" + role && (
+              <motion.div 
+                id="theme-banner"
+                className="mb-6 rounded-lg overflow-hidden border border-primary/20 bg-primary/5 shadow-md"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-lg">Try the new vibrant theme!</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Choose your preferred appearance using the theme toggle.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <ThemeToggle />
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => {
+                        const banner = document.getElementById('theme-banner');
+                        if (banner) {
+                          banner.style.display = 'none';
+                        }
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Dismiss</span>
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>
