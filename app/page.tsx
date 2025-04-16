@@ -9,27 +9,20 @@ import { GraduationCap, Users, Building2, School, BookOpen, CalendarDays } from 
 import { AnimatedGradientBackground } from "@/components/animated-gradient-background"
 import { IntroAnimation } from "@/components/intro-animation"
 import { motion } from "framer-motion"
+import { ThemeMenu } from "@/components/theme-menu"
 
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true)
-
-  // Force dark theme for this page
-  useEffect(() => {
-    document.documentElement.classList.add("dark")
-
-    return () => {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [])
 
   if (showIntro) {
     return <IntroAnimation onComplete={() => setShowIntro(false)} />
   }
 
   return (
-    <div className="flex min-h-screen flex-col relative dark">
+    <div className="flex min-h-screen flex-col relative">
       <AnimatedGradientBackground />
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur">
+      <ThemeMenu />
+      <header className="sticky top-0 z-40 border-b border-border/10 bg-background/50 backdrop-blur">
         <div className="container flex h-20 items-center justify-between py-4">
           <div className="flex items-center gap-3">
             <Image 
@@ -41,7 +34,7 @@ export default function Home() {
             />
             <div className="flex flex-col">
               <span className="text-xl font-bold font-heading">R.V. College of Engineering</span>
-              <span className="text-xs text-gray-400">Autonomous Institution affiliated to VTU, Belgaum</span>
+              <span className="text-xs text-muted-foreground">Autonomous Institution affiliated to VTU, Belgaum</span>
             </div>
           </div>
         </div>
@@ -56,10 +49,10 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-white font-heading">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-foreground font-heading">
                   Activity Points Management Portal
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl mt-4">
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
                   Track, verify, and manage student activity points with ease.
                 </p>
               </div>
@@ -70,16 +63,16 @@ export default function Home() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
+              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-card/90 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <School className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle className="text-xl font-heading">Student Portal</CardTitle>
-                  <CardDescription className="text-gray-300">Access your activity records</CardDescription>
+                  <CardDescription>Access your activity records</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-sm text-gray-400 space-y-2">
+                  <ul className="text-sm text-muted-foreground space-y-2">
                     <li className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-primary/70" />
                       <span>Track points progress</span>
@@ -96,16 +89,16 @@ export default function Home() {
                   </Link>
                 </CardFooter>
               </Card>
-              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
+              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-card/90 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <Users className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle className="text-xl font-heading">Club Portal</CardTitle>
-                  <CardDescription className="text-gray-300">Manage events and participants</CardDescription>
+                  <CardDescription>Manage events and participants</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-sm text-gray-400 space-y-2">
+                  <ul className="text-sm text-muted-foreground space-y-2">
                     <li className="flex items-center gap-2">
                       <CalendarDays className="h-4 w-4 text-primary/70" />
                       <span>Create event proposals</span>
@@ -122,16 +115,16 @@ export default function Home() {
                   </Link>
                 </CardFooter>
               </Card>
-              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
+              <Card className="flex flex-col items-center justify-between backdrop-blur-sm bg-card/90 shadow-xl hover:shadow-primary/20 hover:border-primary/50 transition-all overflow-hidden group">
                 <CardHeader className="text-center pb-4">
                   <div className="mx-auto rounded-full bg-primary/10 p-4 mb-4 group-hover:bg-primary/20 transition-colors">
                     <Building2 className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle className="text-xl font-heading">Admin Portal</CardTitle>
-                  <CardDescription className="text-gray-300">Manage the entire system</CardDescription>
+                  <CardDescription>Manage the entire system</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center pb-6">
-                  <ul className="text-sm text-gray-400 space-y-2">
+                  <ul className="text-sm text-muted-foreground space-y-2">
                     <li className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-primary/70" />
                       <span>Verify event submissions</span>
@@ -152,9 +145,9 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="border-t border-white/10 py-6 bg-black/50 backdrop-blur relative z-10">
+      <footer className="border-t border-border/10 py-6 bg-background/50 backdrop-blur relative z-10">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} R.V. College of Engineering. All rights reserved.
           </p>
         </div>

@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context"
 import { getStudentById, getStudentEvents } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface Event {
   id: number;
@@ -77,11 +78,17 @@ export default function StudentDashboard() {
       <div className="space-y-6">
         {/* Student Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight font-heading">Welcome, {studentData.name.split(' ')[0]}!</h2>
-            <p className="text-muted-foreground">
-              Your activity points dashboard - Track your progress and achievements
-            </p>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarImage src={studentData.profilePic || `/images/avatars/avatar-${(studentData.id % 8) + 1}.png`} alt={studentData.name} />
+              <AvatarFallback className="text-lg">{studentData.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight font-heading">Welcome, {studentData.name.split(' ')[0]}!</h2>
+              <p className="text-muted-foreground">
+                Your activity points dashboard - Track your progress and achievements
+              </p>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="default" size="sm" className="gap-2">
@@ -350,9 +357,9 @@ export default function StudentDashboard() {
                   <div key={index} className="flex items-start space-x-4 p-3 rounded-lg transition-all hover:bg-muted/50">
                     <div className={cn(
                       "p-2 rounded-full",
-                      event.status === "verified" ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" :
-                      event.status === "pending" ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                      "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                      event.status === "verified" ? "bg-green-100 text-green-600" :
+                      event.status === "pending" ? "bg-yellow-100 text-yellow-600" :
+                      "bg-red-100 text-red-600"
                     )}>
                       {event.status === "verified" ? (
                         <CheckCircle className="h-5 w-5" />
@@ -367,7 +374,7 @@ export default function StudentDashboard() {
                         <p className="text-sm font-medium">{event.title}</p>
                         <div className="flex items-center">
                           <Badge variant={
-                            event.status === "verified" ? "success" :
+                            event.status === "approved" ? "success" :
                             event.status === "pending" ? "warning" : "destructive"
                           } className="mr-2">
                             {event.status}

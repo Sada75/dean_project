@@ -2,10 +2,12 @@
 
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
 
 export function AnimatedGradientBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
+  const { theme } = useTheme()
+  
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -47,13 +49,23 @@ export function AnimatedGradientBackground() {
         this.speedY = Math.random() * 1 - 0.5
         this.opacity = Math.random() * 0.5 + 0.1
         
-        // Create various shades of blue, purple and teal for particles
-        const colors = [
+        // Create various colors based on theme
+        let colors = [
           'rgba(66, 135, 245, 0.8)',  // blue
           'rgba(138, 43, 226, 0.6)',  // purple
           'rgba(0, 230, 218, 0.7)',   // teal
           'rgba(255, 255, 255, 0.5)', // white
         ]
+        
+        if (theme === 'bright') {
+          colors = [
+            'rgba(255, 140, 0, 0.6)',   // orange
+            'rgba(255, 185, 0, 0.5)',   // amber
+            'rgba(255, 100, 0, 0.4)',   // red-orange
+            'rgba(255, 160, 100, 0.5)',  // peach
+          ]
+        }
+        
         this.color = colors[Math.floor(Math.random() * colors.length)]
       }
 
@@ -113,7 +125,10 @@ export function AnimatedGradientBackground() {
           
           if (distance < 100) {
             ctx.beginPath()
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 100)})`
+            const connectionColor = theme === 'bright' 
+              ? `rgba(255, 140, 0, ${0.1 * (1 - distance / 100)})`
+              : `rgba(255, 255, 255, ${0.1 * (1 - distance / 100)})`
+            ctx.strokeStyle = connectionColor
             ctx.lineWidth = 0.5
             ctx.moveTo(particles[i].x, particles[i].y)
             ctx.lineTo(particles[j].x, particles[j].y)
@@ -132,30 +147,50 @@ export function AnimatedGradientBackground() {
       window.removeEventListener('resize', resizeCanvas)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [])
+  }, [theme])
+
+  const isDarkTheme = theme === 'dark' || theme === 'vibrant'
 
   return (
     <>
       <canvas 
         ref={canvasRef} 
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ mixBlendMode: 'screen' }}
+        style={{ mixBlendMode: isDarkTheme ? 'screen' : 'multiply' }}
       />
-      <motion.div 
-        className="fixed inset-0 z-0 bg-gradient-to-br from-black via-blue-950 to-black opacity-95"
-        animate={{
-          background: [
-            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
-            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(20,15,60,1) 50%, rgba(0,0,0,1) 100%)',
-            'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
-          ],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      />
+      {isDarkTheme ? (
+        <motion.div 
+          className="fixed inset-0 z-0 bg-gradient-to-br from-black via-blue-950 to-black opacity-95"
+          animate={{
+            background: [
+              'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
+              'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(20,15,60,1) 50%, rgba(0,0,0,1) 100%)',
+              'linear-gradient(135deg, rgba(0,0,0,1) 0%, rgba(8,17,47,1) 50%, rgba(0,0,0,1) 100%)',
+            ],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+      ) : (
+        <motion.div 
+          className="fixed inset-0 z-0 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 opacity-90"
+          animate={{
+            background: [
+              'linear-gradient(135deg, rgba(255,251,235,1) 0%, rgba(255,237,213,1) 50%, rgba(255,249,219,1) 100%)',
+              'linear-gradient(135deg, rgba(255,247,237,1) 0%, rgba(254,231,217,1) 50%, rgba(255,248,231,1) 100%)',
+              'linear-gradient(135deg, rgba(255,251,235,1) 0%, rgba(255,237,213,1) 50%, rgba(255,249,219,1) 100%)',
+            ],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+        />
+      )}
     </>
   )
 }

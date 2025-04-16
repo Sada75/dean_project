@@ -91,11 +91,11 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     <NextThemesProvider 
       {...props} 
       attribute="class" 
-      defaultTheme="dark" 
+      defaultTheme="bright" 
       forcedTheme={undefined}
       enableSystem={false}
       disableTransitionOnChange
-      themes={["dark", "dim-dark", "pitch-dark"]}
+      themes={["bright", "dark", "vibrant"]}
     >
       {children}
     </NextThemesProvider>

@@ -42,13 +42,6 @@ export default function LoginPage() {
     if (user && role) {
       router.push(`/dashboard/${role}`)
     }
-
-    // Force dark theme for this page
-    document.documentElement.classList.add("dark")
-
-    return () => {
-      document.documentElement.classList.remove("dark")
-    }
   }, [searchParams, user, role, router])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -169,10 +162,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden dark">
+    <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
       <AnimatedGradientBackground />
 
-      <Link href="/" className="absolute left-4 top-4 flex items-center text-sm text-white/80 hover:text-white z-10 transition-colors">
+      <Link href="/" className="absolute left-4 top-4 flex items-center text-sm text-foreground/80 hover:text-foreground z-10 transition-colors">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Home
       </Link>
@@ -186,8 +179,8 @@ export default function LoginPage() {
           className="rounded-md"
         />
         <div className="ml-2 flex flex-col">
-          <span className="text-sm font-bold text-white/90">R.V. College of Engineering</span>
-          <span className="text-xs text-white/60">Activity Points Portal</span>
+          <span className="text-sm font-bold text-foreground/90">R.V. College of Engineering</span>
+          <span className="text-xs text-foreground/60">Activity Points Portal</span>
         </div>
       </div>
 
@@ -198,7 +191,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md mx-auto z-10"
         >
-          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+          <Card className="backdrop-blur-sm bg-card/80 border-border shadow-xl overflow-hidden">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-heading">Choose Login Type</CardTitle>
               <CardDescription className="text-foreground/70">Select your role to continue</CardDescription>
@@ -206,38 +199,38 @@ export default function LoginPage() {
             <CardContent className="grid grid-cols-2 gap-4 p-6">
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setLoginRole("student")}
               >
                 <GraduationCap className="h-8 w-8 mb-2 text-blue-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Student</span>
+                <span className="font-medium text-foreground/90">Student</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setLoginRole("club")}
               >
                 <Users className="h-8 w-8 mb-2 text-purple-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Club</span>
+                <span className="font-medium text-foreground/90">Club</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setLoginRole("admin")}
               >
                 <Building2 className="h-8 w-8 mb-2 text-amber-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Admin</span>
+                <span className="font-medium text-foreground/90">Admin</span>
               </Button>
               
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setLoginRole("counsellor")}
               >
                 <HeartHandshake className="h-8 w-8 mb-2 text-green-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Counsellor</span>
+                <span className="font-medium text-foreground/90">Counsellor</span>
               </Button>
             </CardContent>
           </Card>
@@ -249,7 +242,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md mx-auto z-10"
         >
-          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+          <Card className="backdrop-blur-sm bg-card/80 border-border shadow-xl overflow-hidden">
             <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
             <CardHeader className="text-center pt-8">
               <Building2 className="mx-auto h-12 w-12 text-amber-500 mb-4" />
@@ -259,19 +252,19 @@ export default function LoginPage() {
             <CardContent className="grid grid-cols-2 gap-4 p-6">
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setAdminType("dean")}
               >
                 <Building2 className="h-8 w-8 mb-2 text-amber-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Dean Student Affairs</span>
+                <span className="font-medium text-foreground/90">Dean Student Affairs</span>
               </Button>
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm border-white/10 hover:bg-white/5 transition-all group"
+                className="flex flex-col items-center justify-center h-32 p-6 backdrop-blur-sm hover:bg-muted/50 transition-all group"
                 onClick={() => setLoginRole("counsellor")}
               >
                 <HeartHandshake className="h-8 w-8 mb-2 text-green-500 group-hover:scale-110 transition-transform" />
-                <span className="font-medium text-white/90">Counsellor</span>
+                <span className="font-medium text-foreground/90">Counsellor</span>
               </Button>
             </CardContent>
             <CardFooter className="flex justify-center pb-6">
@@ -279,7 +272,7 @@ export default function LoginPage() {
                 variant="ghost" 
                 size="sm"
                 onClick={() => setLoginRole(null)}
-                className="text-sm text-white/60 hover:text-white group"
+                className="text-sm text-foreground/60 hover:text-foreground group"
               >
                 <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                 Back to role selection
@@ -294,7 +287,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md mx-auto z-10"
         >
-          <Card className="backdrop-blur-sm bg-gradient-to-br from-black/60 to-black/40 border-white/10 shadow-xl overflow-hidden">
+          <Card className="backdrop-blur-sm bg-card/80 border-border shadow-xl overflow-hidden">
             <div className={cn("h-1.5 w-full bg-gradient-to-r", getRoleColor())} />
             <CardHeader className="text-center pt-8">
               <motion.div
@@ -333,7 +326,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                      className="bg-background/30 backdrop-blur-sm pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
                     />
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <svg className="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -352,7 +345,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="bg-black/30 backdrop-blur-sm border-white/10 pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+                      className="bg-background/30 backdrop-blur-sm pl-10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
                     />
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <LockKeyhole className="w-4 h-4 text-primary/70" />
@@ -387,7 +380,7 @@ export default function LoginPage() {
                   variant="ghost" 
                   size="sm" 
                   onClick={fillDemoCredentials} 
-                  className="text-sm text-white/60 hover:text-white group"
+                  className="text-sm text-foreground/60 hover:text-foreground group"
                 >
                   Use demo credentials
                 </Button>
@@ -400,7 +393,7 @@ export default function LoginPage() {
                     setLoginRole(null)
                     setAdminType(null)
                   }}
-                  className="text-sm text-white/60 hover:text-white group"
+                  className="text-sm text-foreground/60 hover:text-foreground group"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                   Back to role selection

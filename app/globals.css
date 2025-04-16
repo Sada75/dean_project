@@ -107,6 +107,41 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   
+  .bright {
+    --background: 39 70% 97%;
+    --foreground: 24 10% 10%;
+    --card: 40 30% 98%;
+    --card-foreground: 24 10% 10%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 24 10% 10%;
+    --primary: 24 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 39 50% 94%;
+    --secondary-foreground: 24 10% 10%;
+    --muted: 39 50% 94%;
+    --muted-foreground: 24 5% 45%;
+    --accent: 24 70% 95%;
+    --accent-foreground: 24 10% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 39 30% 90%;
+    --input: 39 30% 90%;
+    --ring: 24 90% 50%;
+    --chart-1: 24 90% 50%;
+    --chart-2: 32 90% 55%;
+    --chart-3: 42 80% 60%;
+    --chart-4: 16 80% 55%;
+    --chart-5: 8 70% 55%;
+    --sidebar-background: 39 30% 95%;
+    --sidebar-foreground: 24 10% 10%;
+    --sidebar-primary: 24 90% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 24 30% 92%;
+    --sidebar-accent-foreground: 24 10% 10%;
+    --sidebar-border: 39 20% 85%;
+    --sidebar-ring: 24 90% 50%;
+  }
+  
   .vibrant {
     --background: 225 30% 96%;
     --foreground: 245 30% 20%;

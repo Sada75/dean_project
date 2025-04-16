@@ -68,13 +68,10 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
 
   // Enforce dark theme for all dashboard pages
   useEffect(() => {
-    // Set theme to dark
-    setTheme('dark')
-    document.documentElement.classList.add("dark")
+    // No need to force dark theme anymore, as we're supporting bright theme
     
     return () => {
-      // No need to remove the dark class when navigating away
-      // as this would only be called when leaving all dashboard pages
+      // No cleanup needed
     }
   }, [setTheme])
 
@@ -187,7 +184,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen dark">
+      <div className="flex min-h-screen">
         {/* Desktop Sidebar */}
         <Sidebar className="hidden md:flex border-r border-border/40 bg-gradient-to-b from-background to-background/95">
           <SidebarHeader className="flex flex-col items-center gap-2 px-4 py-6 border-b border-border/40">
