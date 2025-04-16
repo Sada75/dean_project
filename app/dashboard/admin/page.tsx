@@ -7,12 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, CheckCircle, Clock, FileText, GraduationCap, Search, Users, ArrowUpRight } from "lucide-react"
+import { Calendar, CheckCircle, Clock, FileText, GraduationCap, Search, Users, ArrowUpRight, Filter, Download, File, Archive } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { students, clubs, events, verifyEvent, counsellors } from "@/lib/data"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -285,10 +286,11 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="students" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="students">Students</TabsTrigger>
                 <TabsTrigger value="clubs">Clubs</TabsTrigger>
                 {isDean ? <TabsTrigger value="counsellors">Counsellors</TabsTrigger> : <TabsTrigger value="events">Events</TabsTrigger>}
+                {isDean && <TabsTrigger value="records">Records</TabsTrigger>}
               </TabsList>
               <TabsContent value="students" className="mt-0">
                 <div className="rounded-md border">
@@ -461,6 +463,154 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </TabsContent>
+              )}
+
+              {isDean && (
+                <TabsContent value="records" className="mt-0">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="relative">
+                          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="search"
+                            placeholder="Search records..."
+                            className="w-full pl-8 md:w-80"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Select defaultValue="all">
+                          <SelectTrigger className="w-[180px]">
+                            <div className="flex items-center">
+                              <Filter className="mr-2 h-4 w-4" />
+                              <SelectValue placeholder="Filter by type" />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Records</SelectItem>
+                            <SelectItem value="student">Student Records</SelectItem>
+                            <SelectItem value="event">Event Records</SelectItem>
+                            <SelectItem value="certificate">Certificates</SelectItem>
+                            <SelectItem value="report">Reports</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <Download className="h-4 w-4" />
+                          Export
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/50 border-b px-4 py-3">
+                        <div className="font-medium">Record Title</div>
+                        <div className="font-medium">Type</div>
+                        <div className="font-medium">Added By</div>
+                        <div className="font-medium">Date</div>
+                        <div className="font-medium">Actions</div>
+                      </div>
+                      
+                      {/* Sample Records */}
+                      <div className="flex items-center justify-between border-b px-4 py-3 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center">
+                          <File className="h-4 w-4 mr-2 text-blue-500" />
+                          <span>Final Year Event Reports</span>
+                        </div>
+                        <div>
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-200">Report</Badge>
+                        </div>
+                        <div className="text-muted-foreground">Dean Office</div>
+                        <div>June 15, 2023</div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8">View</Button>
+                          <Button size="sm" variant="outline" className="h-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between border-b px-4 py-3 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center">
+                          <File className="h-4 w-4 mr-2 text-green-500" />
+                          <span>Student Activity Certificates 2023</span>
+                        </div>
+                        <div>
+                          <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200">Certificate</Badge>
+                        </div>
+                        <div className="text-muted-foreground">Activity Coordinator</div>
+                        <div>May 28, 2023</div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8">View</Button>
+                          <Button size="sm" variant="outline" className="h-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between border-b px-4 py-3 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center">
+                          <File className="h-4 w-4 mr-2 text-amber-500" />
+                          <span>Student Points Database</span>
+                        </div>
+                        <div>
+                          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">Database</Badge>
+                        </div>
+                        <div className="text-muted-foreground">System</div>
+                        <div>April 10, 2023</div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8">View</Button>
+                          <Button size="sm" variant="outline" className="h-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between border-b px-4 py-3 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center">
+                          <File className="h-4 w-4 mr-2 text-purple-500" />
+                          <span>Annual Club Activities Report</span>
+                        </div>
+                        <div>
+                          <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-200">Report</Badge>
+                        </div>
+                        <div className="text-muted-foreground">Clubs Coordinator</div>
+                        <div>March 22, 2023</div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8">View</Button>
+                          <Button size="sm" variant="outline" className="h-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors">
+                        <div className="flex items-center">
+                          <Archive className="h-4 w-4 mr-2 text-indigo-500" />
+                          <span>Archived Student Data 2022</span>
+                        </div>
+                        <div>
+                          <Badge variant="outline" className="bg-indigo-500/10 text-indigo-600 border-indigo-200">Archive</Badge>
+                        </div>
+                        <div className="text-muted-foreground">System</div>
+                        <div>December 15, 2022</div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8">View</Button>
+                          <Button size="sm" variant="outline" className="h-8">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button className="gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700">
+                        <FileText className="h-4 w-4" />
+                        Add New Record
+                      </Button>
+                    </div>
                   </div>
                 </TabsContent>
               )}

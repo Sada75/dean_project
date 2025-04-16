@@ -69,8 +69,10 @@ export default function StudentDashboard() {
     )
   }
 
-  // Calculate progress percentage
-  const progressPercentage = (studentData.totalPoints / studentData.targetPoints) * 100;
+  // Calculate progress percentage, ensuring no NaN by providing fallbacks
+  const totalPoints = studentData.totalPoints || 0;
+  const targetPoints = studentData.targetPoints || 100;
+  const progressPercentage = (totalPoints / targetPoints) * 100;
   const progressStatus = progressPercentage >= 100 ? "complete" : progressPercentage >= 75 ? "good" : progressPercentage >= 50 ? "average" : "needs-work";
 
   return (
@@ -108,21 +110,21 @@ export default function StudentDashboard() {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg font-semibold mb-1">Activity Points Progress</h3>
-                <p className="text-sm text-muted-foreground mb-2">You've completed {studentData.activityPoints} out of 100 required points</p>
+                <p className="text-sm text-muted-foreground mb-2">You've completed {studentData.activityPoints || 0} out of 100 required points</p>
                 <div className="w-full md:w-80 h-3 bg-background/50 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-primary rounded-full transition-all duration-500 ease-in-out"
-                    style={{ width: `${Math.min(100, (studentData.activityPoints / 100) * 100)}%` }}
+                    style={{ width: `${Math.min(100, ((studentData.activityPoints || 0) / 100) * 100)}%` }}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
                 <div className="flex flex-col items-center justify-center p-3 bg-background/50 rounded-lg">
-                  <span className="text-2xl font-bold text-primary">{studentData.activityPoints}</span>
+                  <span className="text-2xl font-bold text-primary">{studentData.activityPoints || 0}</span>
                   <span className="text-xs text-muted-foreground">Current Points</span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-3 bg-background/50 rounded-lg">
-                  <span className="text-2xl font-bold">{100 - studentData.activityPoints}</span>
+                  <span className="text-2xl font-bold">{100 - (studentData.activityPoints || 0)}</span>
                   <span className="text-xs text-muted-foreground">Points Needed</span>
                 </div>
               </div>
@@ -213,7 +215,7 @@ export default function StudentDashboard() {
                 <CheckCircle className="mr-1 h-4 w-4 text-teal-500" />
                 <span>
                   {studentEvents.recentEvents.length > 0
-                    ? `${Math.round((studentEvents.recentEvents.filter((e: Event) => e.status === "verified").length / studentEvents.recentEvents.length) * 100)}% verification rate`
+                    ? `${Math.round((studentEvents.recentEvents.filter((e: Event) => e.status === "verified").length / Math.max(1, studentEvents.recentEvents.length)) * 100)}% verification rate`
                     : "No events to verify"}
                 </span>
               </div>
@@ -242,7 +244,7 @@ export default function StudentDashboard() {
                     <span className="font-medium">{studentData.pointsBreakdown.technical} points</span>
                   </div>
                   <Progress
-                    value={(studentData.pointsBreakdown.technical / studentData.totalPoints) * 100}
+                    value={(studentData.pointsBreakdown.technical / (studentData.totalPoints || 1)) * 100}
                     className="h-2 bg-muted"
                     color="bg-blue-500"
                   />
@@ -256,7 +258,7 @@ export default function StudentDashboard() {
                     <span className="font-medium">{studentData.pointsBreakdown.cultural} points</span>
                   </div>
                   <Progress
-                    value={(studentData.pointsBreakdown.cultural / studentData.totalPoints) * 100}
+                    value={(studentData.pointsBreakdown.cultural / (studentData.totalPoints || 1)) * 100}
                     className="h-2 bg-muted"
                     color="bg-purple-500"
                   />
@@ -270,7 +272,7 @@ export default function StudentDashboard() {
                     <span className="font-medium">{studentData.pointsBreakdown.sports} points</span>
                   </div>
                   <Progress
-                    value={(studentData.pointsBreakdown.sports / studentData.totalPoints) * 100}
+                    value={(studentData.pointsBreakdown.sports / (studentData.totalPoints || 1)) * 100}
                     className="h-2 bg-muted"
                     color="bg-rose-500"
                   />
@@ -284,7 +286,7 @@ export default function StudentDashboard() {
                     <span className="font-medium">{studentData.pointsBreakdown.social} points</span>
                   </div>
                   <Progress
-                    value={(studentData.pointsBreakdown.social / studentData.totalPoints) * 100}
+                    value={(studentData.pointsBreakdown.social / (studentData.totalPoints || 1)) * 100}
                     className="h-2 bg-muted"
                     color="bg-green-500"
                   />
@@ -429,9 +431,9 @@ export default function StudentDashboard() {
                     </p>
                   </div>
                   <div className="w-12 h-12 rounded-full flex items-center justify-center border-4" style={{
-                    borderColor: `conic-gradient(rgb(59, 130, 246) ${(studentData.categoryPoints?.academic || 0) / 30 * 100}%, transparent 0)`,
+                    borderColor: `conic-gradient(rgb(59, 130, 246) ${((studentData.categoryPoints?.academic || 0) / 30) * 100}%, transparent 0)`,
                   }}>
-                    <span className="text-xs font-medium">{Math.round((studentData.categoryPoints?.academic || 0) / 30 * 100)}%</span>
+                    <span className="text-xs font-medium">{Math.round(((studentData.categoryPoints?.academic || 0) / 30) * 100)}%</span>
                   </div>
                 </div>
               </CardContent>
@@ -449,9 +451,9 @@ export default function StudentDashboard() {
                     </p>
                   </div>
                   <div className="w-12 h-12 rounded-full flex items-center justify-center border-4" style={{
-                    borderColor: `conic-gradient(rgb(34, 197, 94) ${(studentData.categoryPoints?.sports || 0) / 20 * 100}%, transparent 0)`,
+                    borderColor: `conic-gradient(rgb(34, 197, 94) ${((studentData.categoryPoints?.sports || 0) / 20) * 100}%, transparent 0)`,
                   }}>
-                    <span className="text-xs font-medium">{Math.round((studentData.categoryPoints?.sports || 0) / 20 * 100)}%</span>
+                    <span className="text-xs font-medium">{Math.round(((studentData.categoryPoints?.sports || 0) / 20) * 100)}%</span>
                   </div>
                 </div>
               </CardContent>
