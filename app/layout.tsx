@@ -26,8 +26,8 @@ export const metadata = {
   description: "Track and manage student activity points for R.V. College of Engineering",
   generator: 'Next.js',
   icons: {
-    icon: '/rvce-logo-new.png',
-    apple: '/rvce-logo-new.png',
+    icon: '/images/rvce-logo.png',
+    apple: '/images/rvce-logo.png',
   },
 }
 

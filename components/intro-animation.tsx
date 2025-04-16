@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { GraduationCap } from "lucide-react"
+import Image from "next/image"
 
 interface IntroAnimationProps {
   onComplete: () => void
@@ -51,8 +51,14 @@ export function IntroAnimation({ onComplete }: IntroAnimationProps) {
               initial={{ scale: 0 }}
               animate={{ scale: 1, rotate: 360 }}
               transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
+              className="relative h-20 w-20"
             >
-              <GraduationCap className="h-16 w-16 text-primary" />
+              <Image 
+                src="/images/rvce-logo.png" 
+                alt="RVCE Logo" 
+                fill
+                className="object-contain"
+              />
             </motion.div>
 
             <AnimatePresence>
