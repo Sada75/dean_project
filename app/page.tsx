@@ -33,7 +33,7 @@ export default function Home() {
         <div className="container flex h-20 items-center justify-between py-4">
           <div className="flex items-center gap-3">
             <Image 
-              src="/rvce-logo-new.png" 
+              src="/images/rvce-logo.png" 
               alt="RVCE Logo" 
               width={50} 
               height={50} 

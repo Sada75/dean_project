@@ -193,7 +193,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           <SidebarHeader className="flex flex-col items-center gap-2 px-4 py-6 border-b border-border/40">
             <div className="flex items-center gap-2 mb-2">
               <Image 
-                src="/rvce-logo-new.png" 
+                src="/images/rvce-logo.png" 
                 alt="RVCE Logo" 
                 width={36} 
                 height={36} 
@@ -271,7 +271,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
             </Button>
             <div className="flex items-center gap-2">
               <Image 
-                src="/rvce-logo-new.png" 
+                src="/images/rvce-logo.png" 
                 alt="RVCE Logo" 
                 width={28} 
                 height={28} 

@@ -179,7 +179,7 @@ export default function LoginPage() {
       
       <div className="absolute top-4 right-4 flex items-center z-10">
         <Image 
-          src="/rvce-logo-new.png" 
+          src="/images/rvce-logo.png" 
           alt="RVCE Logo" 
           width={40} 
           height={40}
