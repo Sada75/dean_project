@@ -1,88 +1,248 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db-connect';
-import { UserModel, CounsellorModel, BranchModel } from '@/lib/db-schema';
+import mongoose, { Connection } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import {
+  UserModel,
+  ClubModel,
+  AdminModel,
+  CounsellorModel,
+  BranchModel,
+  IUser,
+  IClub,
+  IAdmin,
+  ICounsellor,
+  CLUB_TYPES,
+} from '@/lib/db-schema';
+
+// Map role to db name and model
+const dbConfig = {
+  student: { dbName: 'students_db', model: UserModel },
+  club: { dbName: 'clubs_db', model: ClubModel },
+  admin: { dbName: 'admins_db', model: AdminModel },
+  dean: { dbName: 'admins_db', model: AdminModel }, // Dean uses admin database
+  counsellor: { dbName: 'counsellors_db', model: CounsellorModel },
+};
+
+type RoleKey = keyof typeof dbConfig;
+const connections: Record<string, Connection> = {};
+
+// Type guard for registration response
+function hasEmailName(obj: any): obj is { email: string; name: string; _id: any } {
+  return (
+    obj &&
+    typeof obj.email === 'string' &&
+    typeof obj.name === 'string' &&
+    '_id' in obj
+  );
+}
+
+// Connect to the correct database and create it if it doesn't exist
+async function getDbModel(role: RoleKey) {
+  const config = dbConfig[role];
+  if (!config) throw new Error('Invalid role');
+  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+  const dbUri = uri.endsWith('/') ? uri + config.dbName : uri + '/' + config.dbName;
+  if (!connections[config.dbName]) {
+    // This will create the database if it doesn't exist
+    const conn = await mongoose.createConnection(dbUri).asPromise();
+    console.log('Connected to database:', config.dbName);
+    connections[config.dbName] = conn;
+  }
+  // Return the model from the correct connection
+  return connections[config.dbName].model(config.model.modelName, config.model.schema);
+}
+
+// Helper function to get or create branch
+async function getOrCreateBranch(branchCode: string, branchName: string): Promise<string> {
+  // Use the default mongoose connection for branch operations
+  const BranchModelInstance = mongoose.model('Branch', BranchModel.schema);
+  
+  let branch = await BranchModelInstance.findOne({ code: branchCode });
+  if (!branch) {
+    branch = await BranchModelInstance.create({
+      name: branchName,
+      code: branchCode,
+      hod: 'TBD', // Default HOD
+      counsellors: []
+    });
+  }
+  // Fix: branch._id is of type unknown, so cast to ObjectId first
+  if (!branch._id || typeof branch._id !== 'object' || !('toString' in branch._id)) {
+    throw new Error('Branch _id is missing or invalid');
+  }
+  return (branch._id as mongoose.Types.ObjectId).toString();
+}
+
+// Helper function to get or create counsellor for branch
+async function getOrCreateCounsellor(branchId: string, branchName: string) {
+  // Use the default mongoose connection for counsellor operations
+  const CounsellorModelInstance = mongoose.model('Counsellor', CounsellorModel.schema);
+  
+  let counsellor = await CounsellorModelInstance.findOne({ branch: branchId });
+  if (!counsellor) {
+    counsellor = await CounsellorModelInstance.create({
+      email: `counsellor.${branchName.toLowerCase()}@rvce.edu.in`,
+      name: `${branchName} Counsellor`,
+      password: await bcrypt.hash('default123', 10),
+      branch: branchId,
+      is_club_counsellor: false
+    });
+  }
+  return counsellor._id;
+}
 
 export async function POST(req: NextRequest) {
   try {
-    // Connect to the database
-    await connectToDatabase();
-    
-    // Parse request body
-    const { email, password, usn, name, branch, year, councellor_id } = await req.json();
-    
-    // Validate input
-    if (!email || !password || !usn || !name || !branch || !year) {
-      return NextResponse.json(
-        { message: 'All fields are required' },
-        { status: 400 }
-      );
+    const { email, password, name, role, ...additionalFields } = await req.json();
+
+    // Validate required fields
+    if (!email || !password || !name || !role) {
+      return NextResponse.json({
+        message: 'Email, password, name, and role are required'
+      }, { status: 400 });
     }
-    
+
+    // Validate password strength
+    if (password.length < 6) {
+      return NextResponse.json({
+        message: 'Password must be at least 6 characters long'
+      }, { status: 400 });
+    }
+
+    const Model = await getDbModel(role as RoleKey);
+
     // Check if user already exists
-    const existingUser = await UserModel.findOne({ 
-      $or: [{ email }, { usn }]
-    });
-    
+    const existingUser = await Model.findOne({ email });
     if (existingUser) {
-      return NextResponse.json(
-        { message: 'User already exists with this email or USN' },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        message: 'User with this email already exists'
+      }, { status: 409 });
     }
-    
-    // Check if counsellor exists
-    if (councellor_id) {
-      const counsellor = await CounsellorModel.findById(councellor_id);
-      if (!counsellor) {
-        return NextResponse.json(
-          { message: 'Counsellor not found' },
-          { status: 400 }
-        );
-      }
-    }
-    
-    // Check if branch exists or create it
-    let branchDoc = await BranchModel.findOne({ branch, year });
-    if (!branchDoc) {
-      branchDoc = await BranchModel.create({ branch, year });
-    }
-    
+
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Create new user
-    const newUser = await UserModel.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Prepare user data based on role
+    let userData: any = {
       email,
       password: hashedPassword,
-      usn,
-      name,
-      branch: branchDoc._id,
-      councellor: councellor_id || null,
-      points: 0,
-      events_registered: [],
-      events_participated: []
-    });
-    
-    // Return success without password
-    const userData = {
-      id: newUser._id,
-      email: newUser.email,
-      name: newUser.name,
-      usn: newUser.usn
+      name
     };
-    
+
+    switch (role) {
+      case 'student':
+        const { usn, branch, year } = additionalFields;
+        if (!usn || !branch || !year) {
+          return NextResponse.json({
+            message: 'USN, branch, and year are required for student registration'
+          }, { status: 400 });
+        }
+
+        // Get or create branch and counsellor
+        const branchId = await getOrCreateBranch(branch, branch);
+        const counsellorId = await getOrCreateCounsellor(branchId.toString(), branch);
+
+        userData = {
+          ...userData,
+          usn: usn.toUpperCase(),
+          branch: branchId,
+          counsellor: counsellorId,
+          clubs: [],
+          activity_point: 0,
+          points_breakdown: {
+            technical: 0,
+            cultural: 0,
+            sports: 0,
+            social: 0
+          },
+          participation_history: []
+        };
+        break;
+
+      case 'club':
+        const { clubName, clubType } = additionalFields;
+        if (!clubName || !clubType) {
+          return NextResponse.json({
+            message: 'Club name and type are required for club registration'
+          }, { status: 400 });
+        }
+
+        // Validate club type
+        if (!CLUB_TYPES.includes(clubType.toLowerCase() as any)) {
+          return NextResponse.json({
+            message: `Invalid club type. Must be one of: ${CLUB_TYPES.join(', ')}`
+          }, { status: 400 });
+        }
+
+        userData = {
+          ...userData,
+          name: clubName,
+          club_type: clubType.toLowerCase(),
+          pocs: [],
+          faculty_in_charge: null, // Will be set later
+          description: '',
+          total_events: 0,
+          pending_verification: 0,
+          upcoming_events: 0
+        };
+        break;
+
+      case 'admin':
+      case 'dean':
+        const { adminType } = additionalFields;
+        userData = {
+          ...userData,
+          adminType: adminType || 'admin'
+        };
+        break;
+
+      case 'counsellor':
+        const { department } = additionalFields;
+        if (!department) {
+          return NextResponse.json({
+            message: 'Department is required for counsellor registration'
+          }, { status: 400 });
+        }
+
+        // Get or create branch for counsellor
+        const counsellorBranchId = await getOrCreateBranch(department, department);
+
+        userData = {
+          ...userData,
+          branch: counsellorBranchId,
+          is_club_counsellor: false
+        };
+        break;
+
+      default:
+        return NextResponse.json({
+          message: 'Invalid role'
+        }, { status: 400 });
+    }
+
+    // Create user
+    const user = await Model.create(userData);
+
+    if (!hasEmailName(user)) {
+      return NextResponse.json({
+        message: 'Registration failed'
+      }, { status: 500 });
+    }
+
     return NextResponse.json({
       message: 'Registration successful',
-      user: userData
-    }, { status: 201 });
-    
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role
+      }
+    });
+
   } catch (error) {
     console.error('Registration error:', error);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      message: 'Internal server error'
+    }, { status: 500 });
   }
 } 

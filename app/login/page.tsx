@@ -31,6 +31,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [showIntro, setShowIntro] = useState(true)
   const [adminType, setAdminType] = useState<string | null>(null)
+  const [showRegister, setShowRegister] = useState(false)
 
   useEffect(() => {
     const roleParam = searchParams.get("role")
@@ -54,29 +55,43 @@ export default function LoginPage() {
 
     setIsLoading(true)
     setError(null)
+    setShowRegister(false) // Hide register button on new login attempt
 
     try {
       // If admin login, use the adminType
       const actualRole = loginRole === "admin" && adminType ? adminType : loginRole
       
-      const result = await login(email, password, actualRole)
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, role: actualRole }),
+      });
 
-      if (result.success) {
+      const data = await res.json();
+
+      if (res.ok) {
         toast({
           title: "Login successful",
           description: `Welcome back!`,
         })
         
         // Use the dashboardPath if provided, otherwise use the role
-        const dashboardRoute = result.dashboardPath || actualRole
+        const dashboardRoute = data.dashboardPath || actualRole
         router.push(`/dashboard/${dashboardRoute}`)
       } else {
-        setError(result.message || "Invalid credentials")
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: result.message || "Invalid credentials",
-        })
+        if (res.status === 401 && data.message?.toLowerCase().includes("not found")) {
+          setError("Email not registered. Please register first.")
+          setShowRegister(true)
+        } else {
+          setError(data.message || "Invalid credentials")
+          toast({
+            variant: "destructive",
+            title: "Login failed",
+            description: data.message || "Invalid credentials",
+          })
+        }
       }
     } catch (err) {
       setError("An error occurred during login")
@@ -160,6 +175,8 @@ export default function LoginPage() {
   if (showIntro) {
     return <IntroAnimation onComplete={() => setShowIntro(false)} />
   }
+  
+  
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
@@ -374,6 +391,18 @@ export default function LoginPage() {
                     "Log In"
                   )}
                 </Button>
+                
+                
+                {showRegister && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => router.push(`/register?role=${loginRole}`)}
+                  >
+                    Register
+                  </Button>
+                )}
                 
                 <Button 
                   type="button" 

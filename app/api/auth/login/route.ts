@@ -1,110 +1,92 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db-connect';
-import { UserModel, AdminModel, CounsellorModel, IUser, IAdmin, ICounsellor } from '@/lib/db-schema';
+import mongoose, { Connection } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { Document } from 'mongoose';
+import {
+  UserModel,
+  ClubModel,
+  AdminModel,
+  CounsellorModel,
+  IUser,
+  IClub,
+  IAdmin,
+  ICounsellor,
+} from '@/lib/db-schema';
 
-type AuthUser = {
-  _id: string;
-  email: string;
-  name: string;
-  password: string;
-  is_club_counsellor?: boolean;
+// Map role to db name and model
+const dbConfig = {
+  student: { dbName: 'students_db', model: UserModel },
+  club: { dbName: 'clubs_db', model: ClubModel },
+  admin: { dbName: 'admins_db', model: AdminModel },
+  dean: { dbName: 'admins_db', model: AdminModel }, // Dean uses admin database
+  counsellor: { dbName: 'counsellors_db', model: CounsellorModel },
 };
+
+type RoleKey = keyof typeof dbConfig;
+const connections: Record<string, Connection> = {};
+
+// Type guards
+function hasPasswordAndEmail(obj: any): obj is { password: string; email: string; name: string; _id: any } {
+  return (
+    obj &&
+    typeof obj.password === 'string' &&
+    typeof obj.email === 'string' &&
+    typeof obj.name === 'string' &&
+    '_id' in obj
+  );
+}
+
+function hasEmailName(obj: any): obj is { email: string; name: string; _id: any } {
+  return (
+    obj &&
+    typeof obj.email === 'string' &&
+    typeof obj.name === 'string' &&
+    '_id' in obj
+  );
+}
+
+// Connect to the correct database and create it if it doesn't exist
+async function getDbModel(role: RoleKey) {
+  const config = dbConfig[role];
+  if (!config) throw new Error('Invalid role');
+  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+  const dbUri = uri.endsWith('/') ? uri + config.dbName : uri + '/' + config.dbName;
+  if (!connections[config.dbName]) {
+    // This will create the database if it doesn't exist
+    const conn = await mongoose.createConnection(dbUri).asPromise();
+    console.log('Connected to database:', config.dbName);
+    connections[config.dbName] = conn;
+  }
+  // Return the model from the correct connection
+  return connections[config.dbName].model(config.model.modelName, config.model.schema);
+}
 
 export async function POST(req: NextRequest) {
   try {
-    // Connect to the database
-    await connectToDatabase();
-    
-    // Parse request body
-    const { email, password } = await req.json();
-    
-    // Validate input
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: 'Email and password are required' },
-        { status: 400 }
-      );
+    const { email, password, role } = await req.json();
+    if (!email || !password || !role) {
+      return NextResponse.json({ message: 'Email, password, and role are required' }, { status: 400 });
     }
-    
-    // Check for user across different collections
-    let user: (Document<unknown, any, any> & AuthUser) | null = null;
-    let role = '';
-    
-    // Try to find student
-    const student = await UserModel.findOne({ email }).select('+password');
-    if (student) {
-      user = student as any;
-      role = 'student';
+    const Model = await getDbModel(role as RoleKey);
+    const user = await Model.findOne({ email }).select('+password');
+    if (!hasPasswordAndEmail(user)) {
+      return NextResponse.json({ message: 'User not found' }, { status: 401 });
     }
-    
-    // Try to find counsellor
-    if (!user) {
-      const counsellor = await CounsellorModel.findOne({ email }).select('+password');
-      if (counsellor) {
-        user = counsellor as any;
-        role = counsellor.is_club_counsellor ? 'club' : 'counsellor';
-      }
-    }
-    
-    // Try to find admin
-    if (!user) {
-      const admin = await AdminModel.findOne({ email }).select('+password');
-      if (admin) {
-        user = admin as any;
-        role = 'admin';
-      }
-    }
-    
-    if (!user) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-    
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
-    
     if (!isMatch) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
-    
-    // Create JWT token
-    const token = jwt.sign(
-      { 
-        id: user._id, 
-        email: user.email,
-        role
-      },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '1d' }
-    );
-    
-    // Create user data to return
-    const userData = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role
-    };
-    
     return NextResponse.json({
       message: 'Login successful',
-      token,
-      user: userData
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role,
+      },
+      dashboardPath: role,
     });
-    
   } catch (error) {
     console.error('Login error:', error);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 } 
