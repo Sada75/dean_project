@@ -5,12 +5,9 @@ import {
   UserModel,
   ClubModel,
   AdminModel,
-  CounsellorModel,
   BranchModel,
   IUser,
   IClub,
-  IAdmin,
-  ICounsellor,
   CLUB_TYPES,
 } from '@/lib/db-schema';
 
@@ -20,10 +17,10 @@ const dbConfig = {
   club: { dbName: 'clubs_db', model: ClubModel },
   admin: { dbName: 'admins_db', model: AdminModel },
   dean: { dbName: 'admins_db', model: AdminModel }, // Dean uses admin database
-  counsellor: { dbName: 'counsellors_db', model: CounsellorModel },
+  // Note: 'counsellor' role is no longer used as a separate role
 };
 
-type RoleKey = keyof typeof dbConfig;
+type RoleKey = 'student' | 'club' | 'admin' | 'dean';
 const connections: Record<string, Connection> = {};
 
 // Type guard for registration response
@@ -73,20 +70,17 @@ async function getOrCreateBranch(branchCode: string, branchName: string): Promis
   return (branch._id as mongoose.Types.ObjectId).toString();
 }
 
-// Helper function to get or create counsellor for branch
-async function getOrCreateCounsellor(branchId: string, branchName: string) {
-  // Use the default mongoose connection for counsellor operations
-  const CounsellorModelInstance = mongoose.model('Counsellor', CounsellorModel.schema);
+// Helper function to find a teacher counsellor for a branch
+async function findTeacherCounsellor(branchId: string) {
+  const AdminModelInstance = mongoose.model('Admin', AdminModel.schema);
+  const counsellor = await AdminModelInstance.findOne({
+    role: 'teacher',
+    branch: branchId,
+    is_club_counsellor: false
+  });
   
-  let counsellor = await CounsellorModelInstance.findOne({ branch: branchId });
   if (!counsellor) {
-    counsellor = await CounsellorModelInstance.create({
-      email: `counsellor.${branchName.toLowerCase()}@rvce.edu.in`,
-      name: `${branchName} Counsellor`,
-      password: await bcrypt.hash('default123', 10),
-      branch: branchId,
-      is_club_counsellor: false
-    });
+    throw new Error(`No teacher counsellor found for branch ${branchId}. Please contact an administrator.`);
   }
   return counsellor._id;
 }
@@ -131,23 +125,37 @@ export async function POST(req: NextRequest) {
 
     switch (role) {
       case 'student':
-        const { usn, branch, year } = additionalFields;
-        if (!usn || !branch || !year) {
+        const { usn, branch, year, graduationYear, selectedCounsellor, selectedClubs = [] } = additionalFields;
+        if (!usn || !branch || !year || !graduationYear || !selectedCounsellor) {
           return NextResponse.json({
-            message: 'USN, branch, and year are required for student registration'
+            message: 'USN, branch, year, graduation year, and counsellor are required for student registration'
           }, { status: 400 });
         }
 
-        // Get or create branch and counsellor
+        // Get or create branch
         const branchId = await getOrCreateBranch(branch, branch);
-        const counsellorId = await getOrCreateCounsellor(branchId.toString(), branch);
+        
+        // Use the selected counsellor instead of auto-assigning
+        const counsellorId = new mongoose.Types.ObjectId(selectedCounsellor);
+
+        // Validate clubs exist and convert to ObjectId
+        let clubIds: mongoose.Types.ObjectId[] = [];
+        try {
+          clubIds = selectedClubs.map((clubId: string) => new mongoose.Types.ObjectId(clubId));
+        } catch (error) {
+          return NextResponse.json({
+            message: 'Invalid club selection'
+          }, { status: 400 });
+        }
 
         userData = {
           ...userData,
           usn: usn.toUpperCase(),
           branch: branchId,
           counsellor: counsellorId,
-          clubs: [],
+          year: parseInt(year, 10),
+          graduationYear: parseInt(graduationYear, 10),
+          clubs: clubIds,
           activity_point: 0,
           points_breakdown: {
             technical: 0,
@@ -189,34 +197,15 @@ export async function POST(req: NextRequest) {
 
       case 'admin':
       case 'dean':
-        const { adminType } = additionalFields;
-        userData = {
-          ...userData,
-          adminType: adminType || 'admin'
-        };
-        break;
-
       case 'counsellor':
-        const { department } = additionalFields;
-        if (!department) {
-          return NextResponse.json({
-            message: 'Department is required for counsellor registration'
-          }, { status: 400 });
-        }
-
-        // Get or create branch for counsellor
-        const counsellorBranchId = await getOrCreateBranch(department, department);
-
-        userData = {
-          ...userData,
-          branch: counsellorBranchId,
-          is_club_counsellor: false
-        };
-        break;
-
+        // Admin, dean, and counsellor accounts must be created through admin interface
+        return NextResponse.json({
+          message: 'This type of account cannot be registered through this endpoint.'
+        }, { status: 403 });
+      
       default:
         return NextResponse.json({
-          message: 'Invalid role'
+          message: 'Invalid role. Only student and club registration is allowed.'
         }, { status: 400 });
     }
 

@@ -18,7 +18,7 @@ const dbConfig = {
   club: { dbName: 'clubs_db', model: ClubModel },
   admin: { dbName: 'admins_db', model: AdminModel },
   dean: { dbName: 'admins_db', model: AdminModel }, // Dean uses admin database
-  counsellor: { dbName: 'counsellors_db', model: CounsellorModel },
+  counsellor: { dbName: 'admins_db', model: AdminModel }, // Counsellors now use admin database
 };
 
 type RoleKey = keyof typeof dbConfig;
@@ -69,6 +69,10 @@ export async function POST(req: NextRequest) {
     const Model = await getDbModel(role as RoleKey);
     const user = await Model.findOne({ email }).select('+password');
     if (!hasPasswordAndEmail(user)) {
+      // For admin logins, don't suggest registration
+      if (role === 'admin' || role === 'dean') {
+        return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+      }
       return NextResponse.json({ message: 'User not found' }, { status: 401 });
     }
     const isMatch = await bcrypt.compare(password, user.password);

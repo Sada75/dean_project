@@ -30,6 +30,13 @@ export default function RegisterPage() {
   const [usn, setUsn] = useState("")
   const [branch, setBranch] = useState("")
   const [year, setYear] = useState("")
+  const [graduationYear, setGraduationYear] = useState("")
+  const [selectedCounsellor, setSelectedCounsellor] = useState("")
+  const [selectedClubs, setSelectedClubs] = useState<string[]>([])
+  
+  // Data for dropdowns
+  const [counsellors, setCounsellors] = useState<{id: string, name: string}[]>([])
+  const [clubs, setClubs] = useState<{id: string, name: string}[]>([])
   
   // Club specific fields
   const [clubName, setClubName] = useState("")
@@ -46,6 +53,35 @@ export default function RegisterPage() {
       router.push('/login')
     }
   }, [role, router])
+
+  // Fetch counsellors and clubs data for student registration
+  useEffect(() => {
+    if (role === 'student') {
+      // Fetch teacher counsellors (admins with role 'teacher')
+      fetch('/api/admin/teachers')
+        .then(res => res.json())
+        .then(data => {
+          if (data.teachers) {
+            setCounsellors(data.teachers.map((t: any) => ({ 
+              id: t._id, 
+              name: t.name,
+              branch: t.branch
+            })))
+          }
+        })
+        .catch(err => console.error('Error fetching teacher counsellors:', err))
+
+      // Fetch clubs from public endpoint
+      fetch('/api/clubs/list')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.clubs) {
+            setClubs(data.clubs)
+          }
+        })
+        .catch(err => console.error('Error fetching clubs:', err))
+    }
+  }, [role])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,6 +102,13 @@ export default function RegisterPage() {
       return
     }
 
+    // Additional validation for student registration
+    if (role === 'student' && !selectedCounsellor) {
+      setError("Please select a counsellor")
+      setIsLoading(false)
+      return
+    }
+
     // Prepare user data based on role
     let userData: any = {
       email,
@@ -76,12 +119,12 @@ export default function RegisterPage() {
 
     switch (role) {
       case 'student':
-        if (!usn || !branch || !year) {
+        if (!usn || !branch || !year || !graduationYear || !selectedCounsellor) {
           setError("All fields are required for student registration")
           setIsLoading(false)
           return
         }
-        userData = { ...userData, usn, branch, year }
+        userData = { ...userData, usn, branch, year, graduationYear, selectedCounsellor, selectedClubs }
         break
       case 'club':
         if (!clubName || !clubType) {
@@ -275,10 +318,10 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="year">Year</Label>
+                  <Label htmlFor="year">Current Year</Label>
                   <Select value={year} onValueChange={setYear} required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your year" />
+                      <SelectValue placeholder="Select your current year" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1">1st Year</SelectItem>
@@ -288,37 +331,79 @@ export default function RegisterPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              </>
-            )}
-
-            {role === 'club' && (
-              <>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="clubName">Club Name</Label>
-                  <Input
-                    id="clubName"
-                    type="text"
-                    placeholder="Enter club name"
-                    value={clubName}
-                    onChange={(e) => setClubName(e.target.value)}
-                    required
-                  />
+                  <Label htmlFor="graduationYear">Graduation Year</Label>
+                  <Select value={graduationYear} onValueChange={setGraduationYear} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your graduation year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2026">2026</SelectItem>
+                      <SelectItem value="2027">2027</SelectItem>
+                      <SelectItem value="2028">2028</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="clubType">Club Type</Label>
-                  <Select value={clubType} onValueChange={setClubType} required>
+                  <Label htmlFor="counsellor">Counsellor</Label>
+                  <Select value={selectedCounsellor} onValueChange={setSelectedCounsellor} required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select club type" />
+                      <SelectValue placeholder="Select your counsellor" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Technical">Technical</SelectItem>
-                      <SelectItem value="Cultural">Cultural</SelectItem>
-                      <SelectItem value="Sports">Sports</SelectItem>
-                      <SelectItem value="Social">Social</SelectItem>
-                      <SelectItem value="Academic">Academic</SelectItem>
+                      {counsellors.map((counsellor) => (
+                        <SelectItem key={counsellor.id} value={counsellor.id}>
+                          {counsellor.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="clubs">Clubs (Optional)</Label>
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value && !selectedClubs.includes(value)) {
+                        setSelectedClubs([...selectedClubs, value])
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select clubs you want to join" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clubs.map((club) => (
+                        <SelectItem key={club.id} value={club.id}>
+                          {club.name}
+                        </SelectItem>
+                      ))}
+                      
+                    </SelectContent>
+                  </Select>
+                  {selectedClubs.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedClubs.map((clubId) => {
+                        const club = clubs.find(c => c.id === clubId)
+                        return club ? (
+                          <span key={clubId} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm flex items-center gap-1">
+                            {club.name}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedClubs(selectedClubs.filter(id => id !== clubId))}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ) : null
+                      })}
+                    </div>
+                  )}
                 </div>
               </>
             )}

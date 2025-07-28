@@ -14,6 +14,9 @@ export interface IAdmin extends Document {
   email: string;
   name: string;
   password: string;
+  role: 'admin' | 'dean' | 'teacher';
+  branch?: Types.ObjectId;
+  is_club_counsellor: boolean;
   createdAt: Date;
 }
 
@@ -104,6 +107,23 @@ const AdminSchema = new Schema({
     type: String,
     required: true
   },
+  role: {
+    type: String as any, // Using 'as any' to avoid TypeScript errors with enum
+    enum: ['admin', 'dean', 'teacher'],
+    default: 'admin',
+    required: true
+  } as const,
+  branch: {
+    type: Schema.Types.ObjectId,
+    ref: 'Branch',
+    required: function(this: { role: string }) {
+      return this.role === 'teacher'; // Only required for teachers
+    }
+  },
+  is_club_counsellor: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -135,8 +155,9 @@ const BranchSchema = new Schema({
   },
   counsellors: [{
     type: Schema.Types.ObjectId,
-    ref: 'Counsellor'
-  }]
+    ref: 'Admin',
+    // Filter for teachers only will be handled in queries
+  } as const]
 }, { 
   collection: 'branches',
   timestamps: true
@@ -206,9 +227,10 @@ const UserSchema = new Schema({
   },
   counsellor: {
     type: Schema.Types.ObjectId,
-    ref: 'Counsellor',
-    required: true
-  },
+    ref: 'Admin',
+    required: true,
+    // Filter for teachers only will be handled in queries
+  } as const,
   clubs: [{
     type: Schema.Types.ObjectId,
     ref: 'Club'
@@ -268,9 +290,10 @@ const ClubSchema = new Schema({
   }],
   faculty_in_charge: {
     type: Schema.Types.ObjectId,
-    ref: 'Counsellor',
-    required: true
-  },
+    ref: 'Admin',
+    required: true,
+    // Only allow admins with role 'teacher' and is_club_counsellor: true
+  } as const,
   description: {
     type: String,
     trim: true

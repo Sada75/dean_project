@@ -81,7 +81,15 @@ export default function LoginPage() {
         const dashboardRoute = data.dashboardPath || actualRole
         router.push(`/dashboard/${dashboardRoute}`)
       } else {
-        if (res.status === 401 && data.message?.toLowerCase().includes("not found")) {
+        // Don't show registration prompt for admin/dean logins
+        if (loginRole === 'admin' || loginRole === 'dean' || adminType) {
+          setError(data.message || "Invalid credentials")
+          toast({
+            variant: "destructive",
+            title: "Login failed",
+            description: data.message || "Invalid credentials",
+          })
+        } else if (res.status === 401 && data.message?.toLowerCase().includes("not found")) {
           setError("Email not registered. Please register first.")
           setShowRegister(true)
         } else {
