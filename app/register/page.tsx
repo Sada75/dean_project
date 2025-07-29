@@ -428,7 +428,9 @@ export default function RegisterPage() {
                       <SelectValue placeholder="Select club type" />
                     </SelectTrigger>
                     <SelectContent>
-                      
+                      <SelectItem value="technical">Technical</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                      <SelectItem value="cultural">Cultural</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
