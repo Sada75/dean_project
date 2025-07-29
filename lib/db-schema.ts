@@ -228,7 +228,7 @@ const UserSchema = new Schema({
   counsellor: {
     type: Schema.Types.ObjectId,
     ref: 'Admin',
-    required: true,
+    required: false,
     // Filter for teachers only will be handled in queries
   } as const,
   clubs: [{
@@ -275,28 +275,28 @@ const UserSchema = new Schema({
 const ClubSchema = new Schema({
   name: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
   club_type: {
     type: String,
-    required: true,
+    required: false,
     enum: CLUB_TYPES
   },
   pocs: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   }],
   faculty_in_charge: {
     type: Schema.Types.ObjectId,
     ref: 'Admin',
-    required: true,
+    required: false,
     // Only allow admins with role 'teacher' and is_club_counsellor: true
   } as const,
   description: {
     type: String,
-    trim: true
+    trim: false
   },
   // Track club statistics
   total_events: {
@@ -313,7 +313,7 @@ const ClubSchema = new Schema({
   }
 }, { 
   collection: 'clubs',
-  timestamps: true
+  timestamps: false
 });
 
 // Event Schema

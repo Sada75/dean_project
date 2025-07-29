@@ -88,6 +88,7 @@ async function findTeacherCounsellor(branchId: string) {
 export async function POST(req: NextRequest) {
   try {
     const { email, password, name, role, ...additionalFields } = await req.json();
+    let user; // Declare user variable at the beginning of the function
 
     // Validate required fields
     if (!email || !password || !name || !role) {
@@ -126,36 +127,37 @@ export async function POST(req: NextRequest) {
     switch (role) {
       case 'student':
         const { usn, branch, year, graduationYear, selectedCounsellor, selectedClubs = [] } = additionalFields;
-        if (!usn || !branch || !year || !graduationYear || !selectedCounsellor) {
+        if (!usn || !branch || !year || !graduationYear ) {
           return NextResponse.json({
             message: 'USN, branch, year, graduation year, and counsellor are required for student registration'
           }, { status: 400 });
         }
 
         // Get or create branch
-        const branchId = await getOrCreateBranch(branch, branch);
+        // const branchId = await getOrCreateBranch(branch, branch);
+        const branchId = "64cfe1d6b98e8a0012d65f05";
         
         // Use the selected counsellor instead of auto-assigning
-        const counsellorId = new mongoose.Types.ObjectId(selectedCounsellor);
+        // const counsellorId = new mongoose.Types.ObjectId(selectedCounsellor);
 
         // Validate clubs exist and convert to ObjectId
-        let clubIds: mongoose.Types.ObjectId[] = [];
-        try {
-          clubIds = selectedClubs.map((clubId: string) => new mongoose.Types.ObjectId(clubId));
-        } catch (error) {
-          return NextResponse.json({
-            message: 'Invalid club selection'
-          }, { status: 400 });
-        }
+        // let clubIds: mongoose.Types.ObjectId[] = [];
+        // try {
+        //   clubIds = selectedClubs.map((clubId: string) => new mongoose.Types.ObjectId(clubId));
+        // } catch (error) {
+        //   return NextResponse.json({
+        //     message: 'Invalid club selection'
+        //   }, { status: 400 });
+        // }
 
         userData = {
           ...userData,
           usn: usn.toUpperCase(),
           branch: branchId,
-          counsellor: counsellorId,
+          // counsellor: counsellorId,
           year: parseInt(year, 10),
           graduationYear: parseInt(graduationYear, 10),
-          clubs: clubIds,
+          // clubs: clubIds,
           activity_point: 0,
           points_breakdown: {
             technical: 0,
@@ -165,6 +167,8 @@ export async function POST(req: NextRequest) {
           },
           participation_history: []
         };
+
+        // The user will be created after the switch statement
         break;
 
       case 'club':
@@ -210,7 +214,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create user
-    const user = await Model.create(userData);
+    user = await Model.create(userData);
 
     if (!hasEmailName(user)) {
       return NextResponse.json({

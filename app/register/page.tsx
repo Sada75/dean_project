@@ -104,9 +104,9 @@ export default function RegisterPage() {
 
     // Additional validation for student registration
     if (role === 'student' && !selectedCounsellor) {
-      setError("Please select a counsellor")
-      setIsLoading(false)
-      return
+      // setError("Please select a counsellor")
+      // setIsLoading(false)
+      
     }
 
     // Prepare user data based on role
@@ -119,7 +119,7 @@ export default function RegisterPage() {
 
     switch (role) {
       case 'student':
-        if (!usn || !branch || !year || !graduationYear || !selectedCounsellor) {
+        if (!usn || !branch || !year || !graduationYear) {
           setError("All fields are required for student registration")
           setIsLoading(false)
           return
@@ -128,7 +128,7 @@ export default function RegisterPage() {
         break
       case 'club':
         if (!clubName || !clubType) {
-          setError("All fields are required for club registration")
+          setError("All fields are required for club registration ")
           setIsLoading(false)
           return
         }
@@ -348,7 +348,7 @@ export default function RegisterPage() {
                   </Select>
                 </div>
                 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="counsellor">Counsellor</Label>
                   <Select value={selectedCounsellor} onValueChange={setSelectedCounsellor} required>
                     <SelectTrigger>
@@ -362,9 +362,9 @@ export default function RegisterPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
                 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="clubs">Clubs (Optional)</Label>
                   <Select 
                     onValueChange={(value) => {
@@ -404,6 +404,33 @@ export default function RegisterPage() {
                       })}
                     </div>
                   )}
+                </div> */}
+              </>
+            )}
+
+            {role === 'club' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="clubName">Club Name</Label>
+                  <Input
+                    id="clubName"
+                    type="text"
+                    placeholder="Enter club name"
+                    value={clubName}
+                    onChange={(e) => setClubName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clubType">Club Type</Label>
+                  <Select value={clubType} onValueChange={setClubType} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select club type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      
+                    </SelectContent>
+                  </Select>
                 </div>
               </>
             )}
